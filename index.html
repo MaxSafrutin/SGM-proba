@@ -3,82 +3,1679 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SGM Auto Group — структура сделки и выбор RAM</title>
-  <meta name="description" content="Поставка RAM и других автомобилей под задачу клиента: структура сделки, форматы покупки и выбор версии RAM." />
+  <title>СГМ Авто Групп — Архитектура безопасной сделки</title>
+  <meta name="theme-color" content="#070707" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  <link rel="stylesheet" href="assets/css/variables.css" />
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sgmBg: '#070707',
+            sgmText: '#FFFFFF',
+            sgmGold1: '#5F2B26',
+            sgmGold2: '#94532C',
+            sgmGold3: '#D09E56',
+            sgmGold4: '#FFF5E2',
+            sgmGold5: '#DCBB95',
+            sgmGold6: '#A05A1F'
+          },
+          boxShadow: {
+            appleSoft: '0 2px 12px rgba(0,0,0,0.08)',
+            sgmCard: '0 18px 60px rgba(0,0,0,0.40)',
+            sgmBtn: '0 10px 26px rgba(208,158,86,0.16)'
+          },
+          borderRadius: {
+            app: '2rem',
+            pill: '999px'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+      scrollbar-gutter: stable both-edges;
+    }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(208,158,86,.12), transparent 24%),
+        radial-gradient(circle at 18% 16%, rgba(255,245,226,.05), transparent 18%),
+        linear-gradient(180deg, #070707 0%, #090909 55%, #070707 100%);
+      color: #FFFFFF;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.015), transparent 20%),
+        radial-gradient(circle at 50% 0%, rgba(208,158,86,.04), transparent 36%);
+      z-index: 0;
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-blur {
+      backdrop-filter: blur(20px);
+      background: rgba(10,10,10,.64);
+      border-color: rgba(255,255,255,.08);
+    }
+
+    .sgm-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.028));
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,.09);
+      box-shadow: 0 18px 60px rgba(0,0,0,.40);
+    }
+
+    .sgm-soft-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 12px 36px rgba(0,0,0,.28);
+    }
+
+    .sgm-gradient-text {
+      background: linear-gradient(135deg, #FFF5E2 0%, #DCBB95 32%, #D09E56 55%, #94532C 78%, #FFF5E2 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .sgm-gradient-btn {
+      background: linear-gradient(135deg, #5F2B26 0%, #94532C 22%, #D09E56 46%, #FFF5E2 58%, #DCBB95 76%, #A05A1F 100%);
+      color: #130d09;
+      box-shadow: 0 10px 26px rgba(208,158,86,.16);
+    }
+
+    .sgm-gradient-line {
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        #5F2B26 0%,
+        #5F2B26 14%,
+        #94532C 28%,
+        #D09E56 45%,
+        #FFF5E2 58%,
+        #DCBB95 74%,
+        #A05A1F 88%,
+        #A05A1F 100%
+      );
+      opacity: .96;
+    }
+
+    .animate-fade-up {
+      animation: fadeUp .55s ease-out forwards;
+    }
+
+    .animate-fade-scale {
+      animation: fadeScale .38s ease-out forwards;
+    }
+
+    .micro-card-opening {
+      transform-origin: top center;
+      animation: microCardOpening 260ms ease-out;
+    }
+
+    .first-wow-glow {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .first-wow-glow::after {
+      content: '';
+      position: absolute;
+      inset: -24%;
+      background: linear-gradient(115deg, transparent 32%, rgba(255,255,255,0.16) 48%, transparent 66%);
+      transform: translateX(-130%);
+      pointer-events: none;
+      animation: firstGlowSweep 1100ms ease-out 120ms 1;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeScale {
+      from { opacity: 0; transform: translateY(10px) scale(.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes microCardOpening {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes firstGlowSweep {
+      from { transform: translateX(-130%); }
+      to { transform: translateX(130%); }
+    }
+
+    .rotate-180 { transform: rotate(180deg); }
+
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .safe-bottom-space {
+      padding-bottom: 108px;
+    }
+
+    .bg-mesh {
+      background:
+        radial-gradient(circle at top right, rgba(208,158,86,.12), transparent 24%),
+        radial-gradient(circle at 20% 20%, rgba(255,245,226,.06), transparent 20%);
+    }
+  </style>
 </head>
-<body>
-  <div class="top-gradient-line"></div>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="index.html" class="logo">SGM <span>Auto Group</span></a>
+<body class="bg-sgmBg text-sgmText">
+  <div id="root"></div>
 
-      <nav class="main-nav">
-        <a href="deal-structure.html">Сделка</a>
-        <a href="choose-ram.html">Выбор RAM</a>
-        <a href="buy-format.html">Формат покупки</a>
-        <a href="risks-faq.html">Вопросы</a>
-        <a href="contact.html">Связаться</a>
-      </nav>
+  <script>
+    const { useState, useEffect, useRef } = React;
 
-      <a class="header-cta" href="contact.html">Получить расчёт</a>
-    </div>
-  </header>
+    const SCROLL_TOP_OFFSET = 96;
+    let smoothScrollTimer = null;
 
-  <main>
-    <section class="hero section">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <div class="eyebrow">Параллельный импорт • безопасность сделки • контроль логистики</div>
-          <h1>Понятная структура поставки автомобиля под задачу клиента</h1>
-          <p class="lead">
-            Здесь можно быстро разобраться в трёх вещах: как проходит сделка,
-            какой RAM выбрать и какой формат покупки подходит именно вам.
-          </p>
+    const smoothScrollToNode = (node, extraOffset = SCROLL_TOP_OFFSET, delay = 110) => {
+      if (!node) return;
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.clearTimeout(smoothScrollTimer);
+      smoothScrollTimer = window.setTimeout(() => {
+        window.requestAnimationFrame(() => {
+          const rect = node.getBoundingClientRect();
+          const targetTop = Math.max(window.scrollY + rect.top - extraOffset, 0);
+          if (Math.abs(window.scrollY - targetTop) < 6) return;
+          window.scrollTo({ top: targetTop, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+        });
+      }, delay);
+    };
 
-          <div class="hero-actions">
-            <a class="btn btn-gold" href="deal-structure.html">Как проходит сделка</a>
-            <a class="btn btn-dark" href="choose-ram.html">Как выбрать RAM</a>
-          </div>
-        </div>
+    const AnimatedCollapse = ({ isOpen, children, className = "", contentClassName = "" }) => {
+      const innerRef = useRef(null);
+      const [height, setHeight] = useState(isOpen ? 'auto' : 0);
 
-        <div class="hero-panel card glass-card">
-          <div class="panel-label">Что можно посмотреть</div>
-          <div class="panel-list">
-            <a class="panel-item" href="deal-structure.html">
-              <span class="panel-number">01</span>
-              <div>
-                <strong>Структура сделки</strong>
-                <p>Этапы, оплаты, логика поставки, контроль и документы</p>
-              </div>
-            </a>
+      useEffect(() => {
+        const node = innerRef.current;
+        if (!node) return;
 
-            <a class="panel-item" href="choose-ram.html">
-              <span class="panel-number">02</span>
-              <div>
-                <strong>Как выбрать RAM</strong>
-                <p>Версии, сценарии использования и короткие выводы</p>
-              </div>
-            </a>
+        let raf;
+        let timer;
+        let resizeObserver;
 
-            <a class="panel-item" href="buy-format.html">
-              <span class="panel-number">03</span>
-              <div>
-                <strong>Формат покупки</strong>
-                <p>Юрлицо, физлицо, лизинг, варианты входа в сделку</p>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
+        const measure = () => setHeight(node.scrollHeight);
 
-    <section class="section">
+        if (isOpen) {
+          raf = window.requestAnimationFrame(measure);
+          if (window.ResizeObserver) {
+            resizeObserver = new ResizeObserver(() => {
+              if (height !== 'auto') measure();
+            });
+            resizeObserver.observe(node);
+          }
+          timer = window.setTimeout(() => setHeight('auto'), 440);
+
+          return () => {
+            if (raf) window.cancelAnimationFrame(raf);
+            if (timer) window.clearTimeout(timer);
+            if (resizeObserver) resizeObserver.disconnect();
+          };
+        }
+
+        const fullHeight = node.scrollHeight;
+        setHeight(fullHeight);
+        raf = window.requestAnimationFrame(() => setHeight(0));
+
+        return () => {
+          if (raf) window.cancelAnimationFrame(raf);
+        };
+      }, [isOpen, children]);
+
+      return React.createElement(
+        "div",
+        {
+          className,
+          style: {
+            overflow: 'hidden',
+            maxHeight: typeof height === 'number' ? `${height}px` : height,
+            opacity: isOpen ? 1 : 0,
+            transition: 'max-height 440ms cubic-bezier(0.16, 1, 0.3, 1), opacity 220ms ease'
+          }
+        },
+        React.createElement(
+          "div",
+          { ref: innerRef, className: `${contentClassName}${isOpen ? ' micro-card-opening' : ''}` },
+          children
+        )
+      );
+    };
+
+    const Modal = ({ isOpen, onClose, title, children }) => {
+      if (!isOpen) return null;
+
+      return React.createElement(
+        "div",
+        {
+          className: "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-scale",
+          onClick: onClose
+        },
+        React.createElement(
+          "div",
+          {
+            className: "w-full max-w-2xl max-h-[86vh] overflow-y-auto rounded-[2rem] sgm-card p-7 border border-white/10",
+            onClick: (e) => e.stopPropagation()
+          },
+          React.createElement(
+            "div",
+            { className: "flex items-center justify-between gap-4 mb-5" },
+            React.createElement("h3", { className: "text-2xl md:text-3xl font-extrabold tracking-tight" }, title),
+            React.createElement(
+              "button",
+              {
+                onClick: onClose,
+                className: "w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white"
+              },
+              "✕"
+            )
+          ),
+          React.createElement("div", { className: "sgm-gradient-line mb-5" }),
+          React.createElement("div", { className: "text-sm md:text-[15px] leading-7 text-white/80 space-y-4" }, children)
+        )
+      );
+    };
+
+    const IconBubble = ({ children }) =>
+      React.createElement(
+        "div",
+        { className: "w-11 h-11 rounded-[1rem] bg-black/40 border border-white/10 flex items-center justify-center text-sgmGold4 shrink-0 shadow-appleSoft" },
+        children
+      );
+
+    const SectionHeroCard = ({ icon, label, description }) =>
+      React.createElement(
+        "div",
+        {
+          className: "sgm-card rounded-[2rem] p-5 md:p-6 border border-white/10 relative overflow-hidden first-wow-glow"
+        },
+        React.createElement(
+          "div",
+          { className: "relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4" },
+          React.createElement(
+            "div",
+            { className: "inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-bold tracking-wide" },
+            React.createElement("i", { className: `fa-solid ${icon} text-sgmGold4` }),
+            React.createElement("span", { className: "sgm-gradient-text" }, label)
+          ),
+          React.createElement(
+            "div",
+            { className: "text-sm text-white/60 md:text-right leading-relaxed max-w-xl" },
+            description
+          )
+        )
+      );
+
+    const MiniInfoCard = ({ title, text, icon }) =>
+      React.createElement(
+        "div",
+        { className: "sgm-soft-card rounded-[1.6rem] p-5 transition-all hover:scale-[1.01]" },
+        React.createElement(
+          "div",
+          { className: "flex items-start gap-4" },
+          React.createElement(
+            IconBubble,
+            null,
+            React.createElement("i", { className: `fa-solid ${icon} text-[15px]` })
+          ),
+          React.createElement(
+            "div",
+            null,
+            React.createElement("h3", { className: "text-base font-bold mb-2 leading-tight" }, title),
+            React.createElement("p", { className: "text-sm text-white/68 leading-6" }, text)
+          )
+        )
+      );
+
+    const SelectorChip = ({ title, desc, active, note, onClick, icon }) =>
+      React.createElement(
+        "button",
+        {
+          onClick,
+          className: `relative w-full text-left rounded-[1.25rem] p-4 border transition-all duration-300 ${
+            active
+              ? 'border-[#FFF5E2]/40 bg-white/[0.085] shadow-[0_10px_28px_rgba(0,0,0,.28)]'
+              : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.06]'
+          }`
+        },
+        note && React.createElement(
+          "span",
+          {
+            className: "absolute -top-2 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase text-[#18110d]",
+            style: {
+              background: 'linear-gradient(135deg, #5F2B26 0%, #94532C 22%, #D09E56 46%, #FFF5E2 58%, #DCBB95 76%, #A05A1F 100%)'
+            }
+          },
+          note
+        ),
+        React.createElement(
+          "div",
+          { className: "flex items-center gap-3 mb-2" },
+          React.createElement(
+            "div",
+            { className: "w-9 h-9 rounded-[0.9rem] bg-black/35 border border-white/10 flex items-center justify-center text-sgmGold4" },
+            React.createElement("i", { className: `fa-solid ${icon} text-[13px]` })
+          ),
+          React.createElement("div", { className: "font-semibold leading-tight text-[15px]" }, title)
+        ),
+        React.createElement("div", { className: "text-[13px] text-white/65 leading-5" }, desc)
+      );
+
+    const CompareCard = ({ title, text }) =>
+      React.createElement(
+        "div",
+        { className: "sgm-soft-card rounded-[1.4rem] p-4" },
+        React.createElement("strong", { className: "block mb-2 text-[15px] font-semibold" }, title),
+        React.createElement("p", { className: "m-0 text-[13px] text-white/68 leading-5" }, text)
+      );
+
+    const scenarios = {
+      gray: {
+        title: 'Серый импорт — зона повышенного риска',
+        modal: [
+          'Серый импорт может выглядеть дешевле только на старте, но часто создаёт высокий риск корректировки таможенной стоимости, штрафов, спорных документов и слабой юридической защиты клиента.',
+          'Для дорогого автомобиля и особенно для бизнеса логичнее показывать белую прозрачную модель сделки, где клиент понимает путь денег, документов и логистики.'
+        ]
+      },
+
+      phys_broker: {
+        title: 'Физическое лицо через СГМ как брокер',
+        badge: 'Физ. лицо • брокер',
+        summary: 'Сделка для личного пользования, где автомобиль оформляется на физическое лицо, а СГМ координирует и сопровождает весь маршрут как брокер.',
+        benefit: 'Подходит для клиента, которому не нужен НДС к возмещению и важна понятная личная схема.',
+        quick: [
+          'Оформление на физическое лицо',
+          'СГМ — брокер и координатор',
+          'НДС не является ключевой задачей',
+          'Для личного использования'
+        ],
+        pros: [
+          'Понятная личная схема без открытия юрлица',
+          'СГМ помогает вести маршрут сделки',
+          'Удобно для клиента, покупающего авто для себя'
+        ],
+        cons: [
+          'Нет логики возмещения НДС',
+          'Не подходит под лизинг',
+          'Для части автомобилей экономика может быть слабее, чем на юрлицо'
+        ],
+        entries: [
+          { key: 'full-stage', title: 'Поэтапная оплата', desc: 'Оплата по логике сделки: резерв, инвойс, логистика, таможня и финальные расходы.', icon: 'fa-wallet' }
+        ],
+        steps: [
+          {
+            name: 'Подбор и согласование автомобиля',
+            body: 'Сначала фиксируем модель, бюджет, требования к комплектации и рынку закупки. После этого подбирается конкретное предложение и проверяется логика покупки.',
+            bullets: [
+              'Клиент понимает, что именно рассматривается к покупке',
+              'Сразу формируется прозрачная логика цены',
+              'Показывается контроль ещё до этапа оплаты'
+            ]
+          },
+          {
+            name: 'Договор и резервирование',
+            body: 'После согласования запускается договорной контур. При необходимости вносится резервирующий платёж для фиксации конкретного автомобиля и цены.'
+          },
+          {
+            name: 'Логистика',
+            body: 'После выкупа автомобиль двигается по согласованному маршруту, а клиент получает понятную структуру контроля по этапам пути.',
+            modal: 'logistics'
+          },
+          {
+            name: 'Таможня и документы',
+            body: 'Автомобиль проходит таможенное оформление, получает необходимый комплект документов и подготавливается к завершению сделки.',
+            modal: 'customs'
+          },
+          {
+            name: 'Передача автомобиля',
+            body: 'После завершения оформления клиент получает автомобиль и комплект документов для дальнейшего пользования и постановки на учёт.',
+            final: true
+          }
+        ]
+      },
+
+      phys_importer: {
+        title: 'Физическое лицо через СГМ под ключ',
+        badge: 'Физ. лицо • под ключ',
+        summary: 'СГМ берёт на себя организационную часть сделки, а клиент получает более комфортный, спокойный и управляемый путь покупки на физическое лицо.',
+        benefit: 'Максимально понятный маршрут для личной покупки, где СГМ закрывает большую часть организационной нагрузки.',
+        quick: [
+          'Оформление на физическое лицо',
+          'СГМ — оператор сделки',
+          'Подходит для личного пользования',
+          'Максимум удобства и контроля'
+        ],
+        pros: [
+          'СГМ ведёт сделку от подбора до выдачи',
+          'Клиенту легче воспринимать этапы сделки',
+          'Меньше ручного контроля на стороне покупателя'
+        ],
+        cons: [
+          'НДС не является преимуществом такой схемы',
+          'Для корпоративной покупки обычно логичнее юрлицо или лизинг'
+        ],
+        entries: [
+          { key: 'a50', title: 'Аванс до 50%', desc: 'Более мягкий вход в сделку.', icon: 'fa-wallet' },
+          { key: 'a60', title: 'Аванс 50–60%', desc: 'Самый сбалансированный сценарий.', icon: 'fa-wallet', note: 'Популярно' },
+          { key: 'a100', title: '100% предоплата', desc: 'Максимальная фиксация и скорость.', icon: 'fa-wallet' }
+        ],
+        steps: [
+          {
+            name: 'Подбор и расчёт',
+            body: 'Определяем рынок, модель, комплектацию и бюджет. После этого собирается понятное коммерческое предложение под клиента.'
+          },
+          {
+            name: 'Фиксация цены',
+            body: 'Для закрепления конкретного предложения используется резерв и фиксация цены, чтобы убрать риск потери интересного варианта.'
+          },
+          {
+            name: 'Основной аванс и запуск маршрута',
+            body: 'После подтверждения автомобиля запускается основной этап: выкуп и фактический старт импортного контура.'
+          },
+          {
+            name: 'Логистика и контроль',
+            body: 'На всём пути важно показывать клиенту не просто факт перевозки, а управляемость и прозрачность маршрута.',
+            modal: 'logistics'
+          },
+          {
+            name: 'Таможня и выпуск документов',
+            body: 'После прибытия автомобиль проходит оформление, получает ЭПТС и комплект документов для финального завершения сделки.',
+            modal: 'customs'
+          },
+          {
+            name: 'Выдача автомобиля',
+            body: 'После финального расчёта и подготовки всех документов автомобиль передаётся клиенту в полностью завершённой логике сделки.',
+            final: true
+          }
+        ]
+      },
+
+      legal_broker: {
+        title: 'Прямой импорт на юридическое лицо клиента',
+        badge: 'Юр. лицо • брокер',
+        summary: 'Автомобиль оформляется напрямую на юридическое лицо клиента, а СГМ сопровождает маршрут сделки как брокер и эксперт по процессу.',
+        benefit: 'Сильная деловая схема для компании, которая хочет прямой импорт на себя и готова к внутренней дисциплине по оплатам и документам.',
+        quick: [
+          'Оформление на юрлицо клиента',
+          'СГМ — брокер и координатор',
+          'Важны НДС и документооборот',
+          'Подходит для бизнеса'
+        ],
+        pros: [
+          'Прямая юридическая логика на компанию клиента',
+          'Удобно для корпоративного использования',
+          'Можно заранее выстроить бизнес-логику НДС'
+        ],
+        cons: [
+          'Требует большей вовлечённости со стороны клиента',
+          'Нужны внутренние согласования и аккуратный документооборот'
+        ],
+        entries: [
+          { key: 'full-stage', title: 'Поэтапная оплата', desc: 'Каждый этап оплачивается по согласованной деловой логике.', icon: 'fa-wallet' }
+        ],
+        steps: [
+          {
+            name: 'Подбор под юрлицо',
+            body: 'Определяются модель, бюджет, рынок закупки и бизнес-логика оформления. После этого строится персональный расчёт под компанию.'
+          },
+          {
+            name: 'Договор и фиксация условий',
+            body: 'Подписывается договорной контур, а ключевые финансовые условия и этапы сделки фиксируются заранее.'
+          },
+          {
+            name: 'Оплата по импортному маршруту',
+            body: 'Компания последовательно закрывает этапы сделки: автомобиль, логистику, таможенные платежи и сопутствующие расходы.'
+          },
+          {
+            name: 'Логистика',
+            body: 'Маршрут поставки должен быть не только безопасным, но и понятным клиенту как бизнес-процессу.',
+            modal: 'logistics'
+          },
+          {
+            name: 'Таможня, НДС, документы',
+            body: 'На этом этапе для клиента особенно важны прозрачность, юридическая чистота и пригодность документов для бизнеса.',
+            modal: 'customs'
+          },
+          {
+            name: 'Передача автомобиля компании',
+            body: 'После завершения всех этапов юрлицо получает автомобиль и комплект документов для постановки на баланс и дальнейшего использования.',
+            final: true
+          }
+        ]
+      },
+
+      legal_importer: {
+        title: 'Юридическое лицо через СГМ под ключ',
+        badge: 'Юр. лицо • рекомендовано',
+        summary: 'Один из самых понятных и сильных маршрутов для бизнеса: СГМ берёт на себя организацию сделки, а клиент получает прозрачную модель с НДС и корректными документами.',
+        benefit: 'Оптимальный баланс безопасности, удобства, прозрачности и деловой логики для корпоративного клиента.',
+        quick: [
+          'Оформление на юрлицо',
+          'СГМ — оператор сделки',
+          'Прозрачная логика НДС',
+          'Подходит для корпоративной покупки'
+        ],
+        pros: [
+          'Сильная и понятная модель для бизнеса',
+          'Легче объяснять клиенту стоимость и этапы',
+          'СГМ закрывает организационный контур сделки',
+          'Удобно для корпоративного документооборота'
+        ],
+        cons: [
+          'Порог входа может быть выше, чем в простых схемах на бумаге',
+          'Нужна точная настройка аванса и графика оплаты'
+        ],
+        entries: [
+          { key: 'a50', title: 'Аванс до 50%', desc: 'Более мягкий старт для компании.', icon: 'fa-wallet' },
+          { key: 'a60', title: 'Аванс 50–60%', desc: 'Самый сбалансированный формат.', icon: 'fa-wallet', note: 'Популярно' },
+          { key: 'a100', title: '100% предоплата', desc: 'Максимальная фиксация условий.', icon: 'fa-wallet' }
+        ],
+        steps: [
+          {
+            name: 'Подбор и коммерческое предложение',
+            body: 'Определяем модель, комплектацию, рынок закупки и экономику сделки. После этого клиент получает понятное предложение под свою задачу.'
+          },
+          {
+            name: 'Бронирование и фиксация цены',
+            body: 'Чтобы закрепить конкретный автомобиль и не потерять его по сроку или цене, заранее фиксируются условия сделки.'
+          },
+          {
+            name: 'Основной аванс',
+            body: 'После подтверждения автомобиля вносится основной аванс по выбранному сценарию и запускается рабочий импортный контур.'
+          },
+          {
+            name: 'Логистика и регулярный контроль',
+            body: 'Важно показать клиенту не только движение автомобиля, но и управляемость процесса по ключевым точкам маршрута.',
+            modal: 'logistics'
+          },
+          {
+            name: 'Таможня, НДС и выпуск документов',
+            body: 'Этот этап формирует финальную юридическую и бухгалтерскую завершённость сделки для бизнеса.',
+            modal: 'customs'
+          },
+          {
+            name: 'Финальный расчёт и передача',
+            body: 'После завершения логистики и оформления клиент закрывает расчёты и получает автомобиль вместе с комплектом документов.',
+            final: true
+          }
+        ]
+      },
+
+      lease_importer: {
+        title: 'Лизинговый сценарий через СГМ',
+        badge: 'Лизинг • под ключ',
+        summary: 'Сценарий для клиента, которому важно совместить лизинг, прозрачность сделки, полный контроль этапов и корректный деловой документооборот.',
+        benefit: 'Удобный корпоративный путь, где важна не только покупка автомобиля, но и финансовая модель приобретения.',
+        quick: [
+          'Покупка в лизинг',
+          'СГМ — оператор и координатор',
+          'Нужна синхронизация с лизинговой компанией',
+          'Подходит для бизнеса'
+        ],
+        pros: [
+          'Более удобная финансовая модель для бизнеса',
+          'СГМ помогает собрать понятную логику сделки',
+          'Проще структурировать этапы для клиента'
+        ],
+        cons: [
+          'Часть сроков зависит от согласования лизингодателя',
+          'Нужна аккуратная связка клиент–СГМ–лизинговая компания'
+        ],
+        entries: [
+          { key: 'a50', title: 'Аванс до 50%', desc: 'Гибкий вход для лизинговой схемы.', icon: 'fa-building-columns' },
+          { key: 'a60', title: 'Аванс 50–60%', desc: 'Самый частый рабочий вариант.', icon: 'fa-building-columns', note: 'Популярно' }
+        ],
+        steps: [
+          {
+            name: 'Согласование сценария',
+            body: 'Сначала определяются автомобиль, бюджет и желаемая финансовая логика покупки совместно с лизинговой стороной.'
+          },
+          {
+            name: 'Фиксация предложения',
+            body: 'После первичного согласования закрепляется конкретный лот и фиксируются базовые условия сделки.'
+          },
+          {
+            name: 'Основной аванс и запуск маршрута',
+            body: 'После внутренних подтверждений стартует основной этап сделки: выкуп автомобиля и фактический импортный контур.'
+          },
+          {
+            name: 'Логистика и контроль статуса',
+            body: 'Для лизинговой схемы особенно важно показывать понятные этапы движения автомобиля и статусы сделки.',
+            modal: 'logistics'
+          },
+          {
+            name: 'Таможня и пакет документов',
+            body: 'На этом этапе собирается юридическая и документальная база для корректного завершения лизинговой конструкции.',
+            modal: 'customs'
+          },
+          {
+            name: 'Выдача автомобиля',
+            body: 'После завершения всех согласований, расчётов и документов автомобиль передаётся клиенту как полностью собранный продукт сделки.',
+            final: true
+          }
+        ]
+      }
+    };
+
+    const buyerTypeOptions = [
+      { value: 'phys', title: 'Как физ. лицо', desc: 'Личная покупка без задачи возмещения НДС.', icon: 'fa-user' },
+      { value: 'legal', title: 'Как юр. лицо', desc: 'Деловой сценарий с корпоративной логикой оформления.', icon: 'fa-building' },
+      { value: 'lease', title: 'В лизинг', desc: 'Для клиента, которому нужна лизинговая схема.', icon: 'fa-building-columns' }
+    ];
+
+    function getRoleOptions(buyerType) {
+      if (buyerType === 'phys') {
+        return [
+          { value: 'broker', title: 'СГМ как брокер', desc: 'Сопровождение и координация сделки.', icon: 'fa-list-check' },
+          { value: 'importer', title: 'СГМ как импортёр', desc: 'Максимально полный маршрут под ключ.', icon: 'fa-shield-halved', note: 'Рекомендуемое' }
+        ];
+      }
+
+      if (buyerType === 'legal') {
+        return [
+          { value: 'broker', title: 'СГМ как брокер', desc: 'Прямой импорт на ваше юрлицо.', icon: 'fa-list-check' },
+          { value: 'importer', title: 'СГМ как импортёр', desc: 'СГМ ведёт контур сделки под ключ.', icon: 'fa-shield-halved', note: 'Рекомендуемое' }
+        ];
+      }
+
+      if (buyerType === 'lease') {
+        return [
+          { value: 'importer', title: 'СГМ как импортёр', desc: 'Полное сопровождение лизинговой схемы.', icon: 'fa-shield-halved', note: 'Рекомендуемое' }
+        ];
+      }
+
+      return [];
+    }
+
+    function resolvePathKey(state) {
+      const { scheme, buyerType, sgmRole } = state;
+      if (scheme !== 'white' || !buyerType || !sgmRole) return null;
+
+      if (buyerType === 'phys' && sgmRole === 'broker') return 'phys_broker';
+      if (buyerType === 'phys' && sgmRole === 'importer') return 'phys_importer';
+      if (buyerType === 'legal' && sgmRole === 'broker') return 'legal_broker';
+      if (buyerType === 'legal' && sgmRole === 'importer') return 'legal_importer';
+      if (buyerType === 'lease' && sgmRole === 'importer') return 'lease_importer';
+
+      return null;
+    }
+
+    const App = () => {
+      const [activeSection, setActiveSection] = useState('home');
+      const [menuOpen, setMenuOpen] = useState(false);
+
+      const [selection, setSelection] = useState({
+        scheme: null,
+        buyerType: null,
+        sgmRole: null,
+        entry: null
+      });
+
+      const [stepIndex, setStepIndex] = useState(0);
+
+      const [modalState, setModalState] = useState({
+        open: false,
+        title: '',
+        type: ''
+      });
+
+      const heroRef = useRef(null);
+      const selectorRef = useRef(null);
+      const stepsRef = useRef(null);
+
+      const pathKey = resolvePathKey(selection);
+      const currentScenario = pathKey ? scenarios[pathKey] : null;
+
+      useEffect(() => {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion) return;
+
+        if (heroRef.current) {
+          heroRef.current.animate(
+            [
+              { opacity: 0.02, transform: 'translateY(14px) scale(.992)', filter: 'blur(6px)' },
+              { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0px)' }
+            ],
+            {
+              duration: 520,
+              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+              fill: 'both'
+            }
+          );
+        }
+      }, []);
+
+      const openModal = (title, type) => {
+        setModalState({ open: true, title, type });
+      };
+
+      const closeModal = () => {
+        setModalState({ open: false, title: '', type: '' });
+      };
+
+      const setScheme = (value) => {
+        const next = { scheme: value, buyerType: null, sgmRole: null, entry: null };
+        setSelection(next);
+
+        if (value === 'gray') {
+          openModal(scenarios.gray.title, 'gray');
+          return;
+        }
+
+        window.setTimeout(() => smoothScrollToNode(selectorRef.current), 90);
+      };
+
+      const setBuyerType = (value) => {
+        const next = { ...selection, buyerType: value, sgmRole: null, entry: null };
+        setSelection(next);
+      };
+
+      const setRole = (value) => {
+        const next = { ...selection, sgmRole: value, entry: null };
+        setSelection(next);
+      };
+
+      const setEntry = (value) => {
+        const next = { ...selection, entry: value };
+        setSelection(next);
+      };
+
+      const showScenario = () => {
+        if (!currentScenario || !selection.entry) return;
+        setStepIndex(0);
+        setActiveSection('steps');
+        window.setTimeout(() => smoothScrollToNode(stepsRef.current), 100);
+      };
+
+      const currentStep = currentScenario ? currentScenario.steps[stepIndex] : null;
+
+      const renderModalContent = () => {
+        if (modalState.type === 'gray') {
+          return React.createElement(
+            React.Fragment,
+            null,
+            React.createElement(
+              "div",
+              { className: "rounded-[1.25rem] border border-[#ffb0a6]/20 bg-[#ffb0a6]/8 px-4 py-4 text-[#ffd8d0] leading-7 text-sm" },
+              scenarios.gray.modal[0]
+            ),
+            React.createElement("p", null, scenarios.gray.modal[1])
+          );
+        }
+
+        if (modalState.type === 'prosCons' && currentScenario) {
+          return React.createElement(
+            React.Fragment,
+            null,
+            React.createElement("div", { className: "grid md:grid-cols-2 gap-4" },
+              React.createElement(
+                "div",
+                { className: "sgm-soft-card rounded-[1.4rem] p-5" },
+                React.createElement("h4", { className: "font-bold text-[16px] mb-3 text-sgmGold4" }, "Плюсы"),
+                React.createElement(
+                  "ul",
+                  { className: "space-y-2 text-white/78 text-sm leading-6" },
+                  currentScenario.pros.map((item, i) =>
+                    React.createElement("li", { key: i, className: "flex gap-3" },
+                      React.createElement("span", { className: "text-sgmGold4" }, "•"),
+                      React.createElement("span", null, item)
+                    )
+                  )
+                )
+              ),
+              React.createElement(
+                "div",
+                { className: "sgm-soft-card rounded-[1.4rem] p-5" },
+                React.createElement("h4", { className: "font-bold text-[16px] mb-3 text-white" }, "Что важно учитывать"),
+                React.createElement(
+                  "ul",
+                  { className: "space-y-2 text-white/78 text-sm leading-6" },
+                  currentScenario.cons.map((item, i) =>
+                    React.createElement("li", { key: i, className: "flex gap-3" },
+                      React.createElement("span", { className: "text-sgmGold4" }, "•"),
+                      React.createElement("span", null, item)
+                    )
+                  )
+                )
+              )
+            )
+          );
+        }
+
+        if (modalState.type === 'logistics') {
+          return React.createElement(
+            React.Fragment,
+            null,
+            React.createElement("p", null, "Здесь важно показать клиенту не просто перевозку автомобиля, а управляемый маршрут сделки."),
+            React.createElement(
+              "ul",
+              { className: "space-y-2" },
+              React.createElement("li", null, "Понятные точки контроля по движению автомобиля."),
+              React.createElement("li", null, "Обновления по ключевым этапам пути."),
+              React.createElement("li", null, "Логика маршрута без ощущения «деньги ушли — дальше тишина»."),
+              React.createElement("li", null, "Визуально клиент должен ощущать контроль и прозрачность процесса.")
+            )
+          );
+        }
+
+        if (modalState.type === 'customs') {
+          return React.createElement(
+            React.Fragment,
+            null,
+            React.createElement("p", null, "На этом этапе клиенту важно объяснить, за что именно он платит и что получает в итоге."),
+            React.createElement(
+              "ul",
+              { className: "space-y-2" },
+              React.createElement("li", null, "Таможенное оформление."),
+              React.createElement("li", null, "ЭПТС и комплект документов."),
+              React.createElement("li", null, "Логику НДС для бизнеса, если оформление идёт на юрлицо."),
+              React.createElement("li", null, "Финальную юридическую завершённость сделки.")
+            )
+          );
+        }
+
+        if (modalState.type === 'company') {
+          return React.createElement(
+            React.Fragment,
+            null,
+            React.createElement("p", null, "Для клиента можно открыть публичные источники проверки компании и тем самым усилить доверие к сделке ещё до обсуждения конкретного автомобиля."),
+            React.createElement(
+              "div",
+              { className: "flex flex-wrap gap-3 pt-2" },
+              React.createElement("a", {
+                href: "https://www.rusprofile.ru/id/1216300039339",
+                target: "_blank",
+                rel: "noopener noreferrer",
+                className: "sgm-gradient-btn inline-flex items-center justify-center px-5 py-3 rounded-full font-bold text-sm"
+              }, "Руспрофайл"),
+              React.createElement("a", {
+                href: "https://checko.ru/company/sgm-avto-grupp-1216300039339",
+                target: "_blank",
+                rel: "noopener noreferrer",
+                className: "inline-flex items-center justify-center px-5 py-3 rounded-full font-semibold text-sm border border-white/10 bg-white/5 hover:bg-white/10"
+              }, "Чекко"),
+              React.createElement("a", {
+                href: "https://sgmautogroup.online/links",
+                target: "_blank",
+                rel: "noopener noreferrer",
+                className: "inline-flex items-center justify-center px-5 py-3 rounded-full font-semibold text-sm border border-white/10 bg-white/5 hover:bg-white/10"
+              }, "Все публичные ссылки")
+            )
+          );
+        }
+
+        return React.createElement("p", null, "");
+      };
+
+      const outerTabs = [
+        { id: 'home', label: 'Главная', icon: 'fa-house' },
+        { id: 'steps', label: 'Этапы', icon: 'fa-list-ol' },
+        { id: 'questions', label: 'Нюансы', icon: 'fa-circle-question' },
+        { id: 'contacts', label: 'Контакты', icon: 'fa-user' }
+      ];
+
+      return React.createElement(
+        "div",
+        { className: "app-shell min-h-screen safe-bottom-space" },
+
+        React.createElement(
+          "nav",
+          { className: "fixed top-0 inset-x-0 z-50 px-3 md:px-4 pt-3 pointer-events-none" },
+          React.createElement(
+            "div",
+            { className: "max-w-6xl mx-auto pointer-events-auto nav-blur rounded-full border px-3 md:px-4 h-14 flex items-center justify-between shadow-sgmCard" },
+            React.createElement(
+              "button",
+              {
+                onClick: () => setActiveSection('home'),
+                className: "flex items-center gap-3 min-w-0"
+              },
+              React.createElement("div", {
+                className: "w-2.5 h-2.5 rounded-full shrink-0",
+                style: {
+                  background: 'linear-gradient(135deg, #5F2B26 0%, #D09E56 45%, #FFF5E2 72%, #5F2B26 100%)',
+                  boxShadow: '0 0 16px rgba(208,158,86,.35)'
+                }
+              }),
+              React.createElement("div", { className: "text-xs md:text-sm uppercase tracking-[0.18em] font-bold text-white truncate" }, "СГМ Авто Групп")
+            ),
+            React.createElement(
+              "button",
+              {
+                onClick: () => setMenuOpen(!menuOpen),
+                className: "w-10 h-10 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center text-white"
+              },
+              React.createElement("i", { className: `fa-solid ${menuOpen ? 'fa-xmark' : 'fa-bars'} text-sm` })
+            )
+          )
+        ),
+
+        menuOpen && React.createElement(
+          "div",
+          { className: "fixed inset-0 z-40 bg-black/30 backdrop-blur-sm", onClick: () => setMenuOpen(false) },
+          React.createElement(
+            "div",
+            {
+              className: "absolute right-3 top-20 w-[min(360px,calc(100vw-24px))] sgm-card rounded-[1.75rem] p-4 border border-white/10 animate-fade-scale",
+              onClick: (e) => e.stopPropagation()
+            },
+            React.createElement("div", { className: "flex items-center justify-between gap-3 mb-4" },
+              React.createElement("div", { className: "text-lg font-bold" }, "Содержание"),
+              React.createElement(
+                "button",
+                {
+                  onClick: () => setMenuOpen(false),
+                  className: "w-9 h-9 rounded-full bg-white/5 border border-white/10 hover:bg-white/10"
+                },
+                "✕"
+              )
+            ),
+            React.createElement("div", { className: "sgm-gradient-line mb-4" }),
+            React.createElement(
+              "div",
+              { className: "grid gap-2" },
+              outerTabs.map(tab =>
+                React.createElement(
+                  "button",
+                  {
+                    key: tab.id,
+                    onClick: () => {
+                      setActiveSection(tab.id);
+                      setMenuOpen(false);
+                    },
+                    className: "w-full flex items-center justify-between gap-3 rounded-[1rem] px-4 py-3 bg-white/[0.035] border border-white/8 hover:bg-white/[0.06] transition-all text-left"
+                  },
+                  React.createElement("div", { className: "flex items-center gap-3" },
+                    React.createElement("i", { className: `fa-solid ${tab.icon} text-sgmGold4 text-sm` }),
+                    React.createElement("span", { className: "font-semibold text-[15px]" }, tab.label)
+                  ),
+                  React.createElement("i", { className: "fa-solid fa-chevron-right text-white/35 text-[11px]" })
+                )
+              )
+            )
+          )
+        ),
+
+        React.createElement(
+          "main",
+          { className: "max-w-6xl mx-auto px-3 md:px-4 pt-24 md:pt-28" },
+
+          activeSection === 'home' && React.createElement(
+            "div",
+            { ref: heroRef, className: "space-y-8 animate-fade-up" },
+
+            React.createElement(
+              "section",
+              { className: "grid xl:grid-cols-[1.08fr_.92fr] gap-6 md:gap-7 items-center min-h-[calc(100vh-180px)]" },
+
+              React.createElement(
+                "div",
+                { className: "space-y-6" },
+                React.createElement(
+                  "div",
+                  { className: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[13px] font-medium text-white/70" },
+                  React.createElement("span", {
+                    className: "w-2 h-2 rounded-full",
+                    style: { background: 'linear-gradient(135deg, #5F2B26 0%, #D09E56 45%, #FFF5E2 100%)' }
+                  }),
+                  React.createElement("span", null, "Параллельный импорт • безопасность сделки • контроль маршрута")
+                ),
+
+                React.createElement(
+                  "div",
+                  { className: "space-y-5" },
+                  React.createElement(
+                    "h1",
+                    { className: "text-[2.35rem] md:text-[4.8rem] leading-[0.94] font-extrabold tracking-[-0.05em] max-w-[10ch]" },
+                    "Архитектура",
+                    React.createElement("br"),
+                    React.createElement("span", { className: "sgm-gradient-text" }, "безопасной сделки")
+                  ),
+                  React.createElement(
+                    "p",
+                    { className: "text-base md:text-[21px] leading-8 text-white/72 max-w-[680px]" },
+                    "Пошаговая система покупки автомобиля через параллельный импорт: от выбора модели и фиксации цены до логистики, таможни, НДС, оформления на юрлицо или физлицо и финальной передачи автомобиля."
+                  )
+                ),
+
+                React.createElement(
+                  "div",
+                  { className: "flex flex-wrap gap-2.5" },
+                  React.createElement("div", { className: "px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-[#f0dbbc]" }, "Юрлица"),
+                  React.createElement("div", { className: "px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-[#f0dbbc]" }, "Физ. лица"),
+                  React.createElement("div", { className: "px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-[#f0dbbc]" }, "НДС"),
+                  React.createElement("div", { className: "px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-[#f0dbbc]" }, "Логистика"),
+                  React.createElement("div", { className: "px-3 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-[#f0dbbc]" }, "Таможня")
+                ),
+
+                React.createElement(
+                  "div",
+                  { className: "flex flex-col sm:flex-row gap-3 pt-1" },
+                  React.createElement(
+                    "button",
+                    {
+                      onClick: () => openModal('Проверить компанию', 'company'),
+                      className: "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-semibold text-sm hover:bg-white/10 transition-all"
+                    },
+                    React.createElement("i", { className: "fa-solid fa-shield-halved text-sgmGold4" }),
+                    React.createElement("span", null, "Проверить компанию")
+                  ),
+                  React.createElement(
+                    "a",
+                    {
+                      href: "https://customs.gov.ru/registers/customs-representatives?number=&date=&term=&name=%D0%A1%D0%93%D0%9C+%D0%90%D0%B2%D1%82%D0%BE+%D0%93%D1%80%D1%83%D0%BF%D0%BF&location=",
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-semibold text-sm hover:bg-white/10 transition-all"
+                    },
+                    React.createElement("i", { className: "fa-solid fa-landmark text-sgmGold4" }),
+                    React.createElement("span", null, "ФТС — рег. №1904")
+                  )
+                )
+              ),
+
+              React.createElement(
+                "div",
+                { ref: selectorRef, className: "space-y-4" },
+
+                React.createElement(
+                  "div",
+                  { className: "grid gap-4" },
+                  React.createElement(MiniInfoCard, {
+                    title: "Что даёт эта презентация",
+                    text: "Она объясняет клиенту не только преимущества покупки, но и всю деловую механику сделки: кто платит, когда платит, кто оформляет, где контроль и где безопасность.",
+                    icon: "fa-layer-group"
+                  }),
+                  React.createElement(MiniInfoCard, {
+                    title: "Как должно ощущаться",
+                    text: "Как дорогое мобильное приложение: минимум хаоса, максимум воздуха, чёткая логика, строгая уверенная подача и понятные действия.",
+                    icon: "fa-mobile-screen-button"
+                  })
+                ),
+
+                React.createElement(
+                  "div",
+                  { className: "sgm-card rounded-[2rem] p-5 md:p-6" },
+                  React.createElement("h2", { className: "text-xl md:text-2xl font-bold tracking-tight mb-2" }, "Выберите удобный сценарий сделки"),
+                  React.createElement(
+                    "p",
+                    { className: "text-sm md:text-[15px] text-white/66 leading-6 mb-5" },
+                    "Сначала определим тип схемы, затем кто покупатель, роль СГМ Авто Групп и формат входа в сделку."
+                  ),
+
+                  React.createElement(
+                    "div",
+                    { className: "space-y-5" },
+
+                    React.createElement(
+                      "div",
+                      { className: "space-y-3" },
+                      React.createElement(
+                        "div",
+                        { className: "flex items-center justify-between gap-3 flex-wrap" },
+                        React.createElement("div", { className: "text-[12px] uppercase tracking-[0.16em] text-white/50 font-semibold" }, "Тип схемы"),
+                        React.createElement("div", { className: "px-3 py-2 rounded-full border border-white/10 bg-white/5 text-[11px] font-semibold text-[#f0dbbc]" }, "НДС • юрлица • физлица • лизинг")
+                      ),
+
+                      React.createElement(
+                        "div",
+                        { className: "grid md:grid-cols-2 gap-3" },
+                        React.createElement(CompareCard, {
+                          title: 'Белый импорт',
+                          text: 'Прямой прозрачный сценарий с понятной юридической моделью, контролем логистики и документами.'
+                        }),
+                        React.createElement(CompareCard, {
+                          title: 'Серый импорт',
+                          text: 'Иногда кажется дешевле на старте, но несёт больше риска по доплатам, документам и безопасности сделки.'
+                        })
+                      ),
+
+                      React.createElement(
+                        "div",
+                        { className: "grid sm:grid-cols-2 gap-3" },
+                        React.createElement(
+                          "button",
+                          {
+                            onClick: () => setScheme('white'),
+                            className: `inline-flex items-center justify-center gap-3 min-h-[52px] px-4 rounded-[1rem] border transition-all ${
+                              selection.scheme === 'white'
+                                ? 'border-[#FFF5E2]/40 bg-white/[0.08]'
+                                : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.06]'
+                            }`
+                          },
+                          React.createElement("i", { className: "fa-solid fa-shield-halved text-sgmGold4" }),
+                          React.createElement("span", { className: "font-semibold text-[15px]" }, "Белый импорт")
+                        ),
+                        React.createElement(
+                          "button",
+                          {
+                            onClick: () => setScheme('gray'),
+                            className: `inline-flex items-center justify-center gap-3 min-h-[52px] px-4 rounded-[1rem] border transition-all ${
+                              selection.scheme === 'gray'
+                                ? 'border-[#FFF5E2]/40 bg-white/[0.08]'
+                                : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.06]'
+                            }`
+                          },
+                          React.createElement("i", { className: "fa-solid fa-triangle-exclamation text-sgmGold4" }),
+                          React.createElement("span", { className: "font-semibold text-[15px]" }, "Серый импорт")
+                        )
+                      )
+                    ),
+
+                    selection.scheme === 'white' && React.createElement(
+                      React.Fragment,
+                      null,
+
+                      React.createElement(
+                        "div",
+                        { className: "space-y-3" },
+                        React.createElement("div", { className: "text-[12px] uppercase tracking-[0.16em] text-white/50 font-semibold" }, "Кто покупатель"),
+                        React.createElement(
+                          "div",
+                          { className: "grid md:grid-cols-3 gap-3" },
+                          buyerTypeOptions.map(item =>
+                            React.createElement(SelectorChip, {
+                              key: item.value,
+                              title: item.title,
+                              desc: item.desc,
+                              active: selection.buyerType === item.value,
+                              icon: item.icon,
+                              onClick: () => setBuyerType(item.value)
+                            })
+                          )
+                        )
+                      ),
+
+                      selection.buyerType && React.createElement(
+                        "div",
+                        { className: "space-y-3" },
+                        React.createElement("div", { className: "text-[12px] uppercase tracking-[0.16em] text-white/50 font-semibold" }, "Роль СГМ Авто Групп"),
+                        React.createElement(
+                          "div",
+                          { className: "grid md:grid-cols-2 gap-3" },
+                          getRoleOptions(selection.buyerType).map(item =>
+                            React.createElement(SelectorChip, {
+                              key: item.value,
+                              title: item.title,
+                              desc: item.desc,
+                              active: selection.sgmRole === item.value,
+                              note: item.note,
+                              icon: item.icon,
+                              onClick: () => setRole(item.value)
+                            })
+                          )
+                        )
+                      ),
+
+                      currentScenario && React.createElement(
+                        "div",
+                        { className: "space-y-3" },
+                        React.createElement("div", { className: "text-[12px] uppercase tracking-[0.16em] text-white/50 font-semibold" }, "Формат входа в сделку"),
+                        React.createElement(
+                          "div",
+                          { className: "grid md:grid-cols-2 gap-3" },
+                          currentScenario.entries.map(item =>
+                            React.createElement(SelectorChip, {
+                              key: item.key,
+                              title: item.title,
+                              desc: item.desc,
+                              active: selection.entry === item.key,
+                              note: item.note,
+                              icon: item.icon,
+                              onClick: () => setEntry(item.key)
+                            })
+                          )
+                        )
+                      ),
+
+                      currentScenario && React.createElement(
+                        "div",
+                        { className: "rounded-[1.35rem] border border-[#FFF5E2]/14 bg-[linear-gradient(180deg,rgba(255,245,226,.08),rgba(255,255,255,.03))] p-4 space-y-4" },
+                        React.createElement("div", { className: "text-[11px] uppercase tracking-[0.18em] text-white/50 font-semibold" }, "Резюме маршрута"),
+                        React.createElement("div", { className: "text-[15px] leading-7 text-white" }, currentScenario.summary),
+                        React.createElement(
+                          "div",
+                          { className: "flex flex-col sm:flex-row gap-3" },
+                          React.createElement(
+                            "button",
+                            {
+                              onClick: () => openModal('Плюсы и минусы сценария', 'prosCons'),
+                              className: "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 font-semibold text-sm hover:bg-white/10 transition-all"
+                            },
+                            React.createElement("i", { className: "fa-solid fa-scale-balanced text-sgmGold4" }),
+                            React.createElement("span", null, "Плюсы и минусы")
+                          ),
+                          React.createElement(
+                            "button",
+                            {
+                              onClick: showScenario,
+                              disabled: !selection.entry,
+                              className: `inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-bold text-sm transition-all ${
+                                selection.entry
+                                  ? 'sgm-gradient-btn'
+                                  : 'bg-white/8 text-white/35 cursor-not-allowed'
+                              }`
+                            },
+                            React.createElement("i", { className: "fa-solid fa-arrow-right" }),
+                            React.createElement("span", null, "Посмотреть этот путь")
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+
+          activeSection === 'steps' && React.createElement(
+            "div",
+            { ref: stepsRef, className: "space-y-6 animate-fade-up" },
+            React.createElement(SectionHeroCard, {
+              icon: 'fa-list-ol',
+              label: currentScenario ? currentScenario.title : 'Пошаговый маршрут сделки',
+              description: currentScenario
+                ? currentScenario.summary
+                : 'После выбора сценария на главной здесь откроется персональная логика сделки.'
+            }),
+
+            currentScenario
+              ? React.createElement(
+                  "div",
+                  { className: "grid xl:grid-cols-[1.08fr_.92fr] gap-5" },
+
+                  React.createElement(
+                    "div",
+                    { className: "sgm-card rounded-[2rem] p-5 md:p-6 flex flex-col gap-5 min-h-[520px]" },
+                    React.createElement(
+                      "div",
+                      { className: "flex flex-wrap items-center gap-4" },
+                      React.createElement(
+                        "div",
+                        {
+                          className: "w-12 h-12 rounded-full flex items-center justify-center text-[#130d09] font-extrabold text-lg shadow-sgmBtn",
+                          style: {
+                            background: 'linear-gradient(135deg, #5F2B26 0%, #94532C 22%, #D09E56 46%, #FFF5E2 58%, #DCBB95 76%, #A05A1F 100%)'
+                          }
+                        },
+                        stepIndex + 1
+                      ),
+                      React.createElement(
+                        "div",
+                        { className: "space-y-2" },
+                        React.createElement("div", { className: "text-[11px] uppercase tracking-[0.18em] text-white/45 font-semibold" }, currentScenario.badge),
+                        React.createElement("h2", { className: "text-2xl md:text-[34px] leading-[1.02] font-bold tracking-[-0.03em]" }, currentStep.name)
+                      )
+                    ),
+
+                    React.createElement(
+                      "div",
+                      { className: "flex gap-2 flex-wrap" },
+                      currentScenario.steps.map((_, idx) =>
+                        React.createElement("div", {
+                          key: idx,
+                          className: idx === stepIndex
+                            ? "h-2.5 w-8 rounded-full"
+                            : "h-2.5 w-2.5 rounded-full border border-white/10 bg-white/12",
+                          style: idx === stepIndex
+                            ? {
+                                background: 'linear-gradient(90deg, #5F2B26 0%, #D09E56 45%, #FFF5E2 100%)'
+                              }
+                            : {}
+                        })
+                      )
+                    ),
+
+                    React.createElement(
+                      "div",
+                      { className: "text-[15px] md:text-[16px] leading-8 text-white/74 space-y-4" },
+                      React.createElement("p", null, currentStep.body),
+                      currentStep.bullets && React.createElement(
+                        "div",
+                        { className: "grid gap-2 pt-1" },
+                        currentStep.bullets.map((item, i) =>
+                          React.createElement(
+                            "div",
+                            { key: i, className: "grid grid-cols-[16px_1fr] gap-3 items-start" },
+                            React.createElement("div", {
+                              className: "w-2 h-2 rounded-full mt-3",
+                              style: {
+                                background: 'linear-gradient(135deg, #5F2B26 0%, #D09E56 45%, #FFF5E2 100%)',
+                                boxShadow: '0 0 12px rgba(208,158,86,.22)'
+                              }
+                            }),
+                            React.createElement("div", null, item)
+                          )
+                        )
+                      )
+                    ),
+
+                    currentStep.modal && React.createElement(
+                      "div",
+                      { className: "flex flex-wrap gap-3" },
+                      currentStep.modal === 'logistics' && React.createElement(
+                        "button",
+                        {
+                          onClick: () => openModal('Контроль логистики', 'logistics'),
+                          className: "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 font-semibold text-sm hover:bg-white/10 transition-all"
+                        },
+                        React.createElement("i", { className: "fa-solid fa-route text-sgmGold4" }),
+                        React.createElement("span", null, "Подробнее о логистике")
+                      ),
+                      currentStep.modal === 'customs' && React.createElement(
+                        "button",
+                        {
+                          onClick: () => openModal('Таможня, документы, НДС', 'customs'),
+                          className: "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 font-semibold text-sm hover:bg-white/10 transition-all"
+                        },
+                        React.createElement("i", { className: "fa-solid fa-file-contract text-sgmGold4" }),
+                        React.createElement("span", null, "Подробнее о таможне и документах")
+                      )
+                    ),
+
+                    React.createElement(
+                      "div",
+                      { className: "mt-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-2" },
+                      React.createElement(
+                        "div",
+                        { className: "flex flex-col sm:flex-row gap-3" },
+                        React.createElement(
+                          "button",
+                          {
+                            onClick: () => setStepIndex(Math.max(stepIndex - 1, 0)),
+                            disabled: stepIndex === 0,
+                            className: `inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-sm transition-all ${
+                              stepIndex === 0
+                                ? 'bg-white/8 text-white/35 cursor-not-allowed'
+                                : 'border border-white/10 bg-white/5 hover:bg-white/10'
+                            }`
+                          },
+                          React.createElement("i", { className: "fa-solid fa-arrow-left" }),
+                          React.createElement("span", null, "Назад")
+                        ),
+                        React.createElement(
+                          "button",
+                          {
+                            onClick: () => {
+                              if (stepIndex < currentScenario.steps.length - 1) {
+                                setStepIndex(stepIndex + 1);
+                              } else {
+                                setActiveSection('contacts');
+                              }
+                            },
+                            className: "sgm-gradient-btn inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-bold text-sm"
+                          },
+                          React.createElement("span", null, stepIndex < currentScenario.steps.length - 1 ? 'Далее' : 'Завершить'),
+                          React.createElement("i", { className: `fa-solid ${stepIndex < currentScenario.steps.length - 1 ? 'fa-arrow-right' : 'fa-key'}` })
+                        )
+                      ),
+                      React.createElement(
+                        "button",
+                        {
+                          onClick: () => setActiveSection('home'),
+                          className: "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 font-semibold text-sm hover:bg-white/10 transition-all"
+                        },
+                        React.createElement("i", { className: "fa-solid fa-sliders" }),
+                        React.createElement("span", null, "Выбрать другой сценарий")
+                      )
+                    )
+                  ),
+
+                  React.createElement(
+                    "div",
+                    { className: "grid gap-4 h-fit" },
+                    React.createElement(
+                      "div",
+                      { className: "sgm-soft-card rounded-[1.7rem] p-5" },
+                      React.createElement("h3", { className: "text-[17px] font-bold mb-3" }, "Ключевые ориентиры"),
+                      React.createElement(
+                        "ul",
+                        { className: "grid gap-2 text-sm text-white/72 leading-6" },
+                        currentScenario.quick.map((item, i) =>
+                          React.createElement("li", { key: i, className: "flex gap-3" },
+                            React.createElement("span", { className: "text-sgmGold4" }, "•"),
+                            React.createElement("span", null, item)
+                          )
+                        )
+                      )
+                    ),
+                    React.createElement(
+                      "div",
+                      { className: "sgm-soft-card rounded-[1.7rem] p-5" },
+                      React.createElement("h3", { className: "text-[17px] font-bold mb-3" }, "Что даёт этот путь"),
+                      React.createElement("p", { className: "text-sm text-white/72 leading-7" }, currentScenario.benefit)
+                    ),
+                    currentStep.final && React.createElement(
+                      "div",
+                      { className: "sgm-soft-card rounded-[1.7rem] p-5" },
+                      React.createElement("h3", { className: "text-[17px] font-bold mb-3" }, "Финальный шаг"),
+                      React.createElement(
+                        "div",
+                        { className: "grid gap-3" },
+                        React.createElement(
+                          "a",
+                          {
+                            href: "tel:+79272651777",
+                            className: "sgm-gradient-btn inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-bold text-sm"
+                          },
+                          React.createElement("i", { className: "fa-solid fa-phone" }),
+                          React.createElement("span", null, "Связаться с менеджером")
+                        ),
+                        React.createElement(
+                          "div",
+                          { className: "text-sm text-white/68 leading-6" },
+                          "Email: ",
+                          React.createElement("a", { href: "mailto:m.safrutin@sgmautogroup.ru", className: "text-[#f4dcc1] underline underline-offset-4" }, "m.safrutin@sgmautogroup.ru"),
+                          React.createElement("br"),
+                          "СГМ Авто Групп"
+                        )
+                      )
+                    )
+                  )
+                )
+              : React.createElement(
+                  "div",
+                  { className: "sgm-card rounded-[2rem] p-6 text-center" },
+                  React.createElement("div", { className: "text-xl font-bold mb-3" }, "Сначала выберите сценарий на главной"),
+                  React.createElement("p", { className: "text-white/65 leading-7 mb-5" }, "После выбора здесь откроется персональная логика сделки под ваш формат оформления."),
+                  React.createElement(
+                    "button",
+                    {
+                      onClick: () => setActiveSection('home'),
+                      className: "sgm-gradient-btn inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-bold text-sm"
+                    },
+                    React.createElement("i", { className: "fa-solid fa-arrow-left" }),
+                    React.createElement("span", null, "Перейти на главную")
+                  )
+                )
+          ),
+
+          activeSection === 'questions' && React.createElement(
+            "div",
+            { className: "space-y-6 animate-fade-up" },
+            React.createElement(SectionHeroCard, {
+              icon: 'fa-circle-question',
+              label: 'Ключевые нюансы сделки',
+              description: 'Краткие пояснения по белому и серому импорту, НДС, логистике, таможне и общей деловой логике оформления.'
+            }),
+            React.createElement(
+              "div",
+              { className: "grid md:grid-cols-2 gap-4" },
+              React.createElement(MiniInfoCard, {
+                title: 'Белый импорт через СГМ Авто Групп',
+                text: 'Это прозрачный сценарий с понятным маршрутом денег, документов, логистики и роли каждой стороны в сделке.',
+                icon: 'fa-shield-halved'
+              }),
+              React.createElement(MiniInfoCard, {
+                title: 'Серый импорт через посредников',
+                text: 'Часто выглядит привлекательнее только на старте, но несёт больше нервов, спорных моментов и слабее защищает клиента.',
+                icon: 'fa-triangle-exclamation'
+              }),
+              React.createElement(MiniInfoCard, {
+                title: 'Возврат средств и фиксация цены',
+                text: 'Клиенту важно заранее понимать, где резерв, где фиксация цены и на каком этапе деньги уже привязаны к конкретному автомобилю.',
+                icon: 'fa-money-bill-transfer'
+              }),
+              React.createElement(MiniInfoCard, {
+                title: 'Логистика, таможня, документы',
+                text: 'Ваша задача — сделать так, чтобы клиент понимал: где его автомобиль, что происходит с документами и какой следующий шаг по сделке.',
+                icon: 'fa-file-contract'
+              })
+            )
+          ),
+
+          activeSection === 'contacts' && React.createElement(
+            "div",
+            { className: "space-y-6 animate-fade-up" },
+            React.createElement(SectionHeroCard, {
+              icon: 'fa-user-tie',
+              label: 'Контакты',
+              description: 'Если удобнее обсудить запрос голосом или сразу запросить персональное КП — можно перейти к контакту напрямую.'
+            }),
+            React.createElement(
+              "div",
+              { className: "grid md:grid-cols-2 gap-4" },
+              React.createElement(
+                "div",
+                { className: "sgm-card rounded-[2rem] p-6" },
+                React.createElement("h3", { className: "text-xl font-bold mb-1" }, "Максим Сафрутин"),
+                React.createElement("p", { className: "text-sm text-white/62 mb-5" }, "Менеджер департамента продаж • СГМ Авто Групп"),
+                React.createElement(
+                  "div",
+                  { className: "flex flex-col sm:flex-row gap-3" },
+                  React.createElement(
+                    "a",
+                    {
+                      href: "tel:+79272651777",
+                      className: "sgm-gradient-btn inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-bold text-sm"
+                    },
+                    React.createElement("i", { className: "fa-solid fa-phone" }),
+                    React.createElement("span", null, "Позвонить")
+                  ),
+                  React.createElement(
+                    "a",
+                    {
+                      href: "mailto:m.safrutin@sgmautogroup.ru",
+                      className: "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 font-semibold text-sm hover:bg-white/10 transition-all"
+                    },
+                    React.createElement("i", { className: "fa-solid fa-envelope" }),
+                    React.createElement("span", null, "Написать на почту")
+                  )
+                ),
+                React.createElement(
+                  "a",
+                  {
+                    href: "https://sgmautogroup.online/links",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    className: "mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 font-semibold text-sm hover:bg-white/10 transition-all"
+                  },
+                  React.createElement("i", { className: "fa-solid fa-link" }),
+                  React.createElement("span", null, "Все публичные ссылки")
+                )
+              ),
+              React.createElement(
+                "div",
+                { className: "sgm-soft-card rounded-[2rem] p-6" },
+                React.createElement("h3", { className: "text-[18px] font-bold mb-3" }, "Когда лучше связаться сразу"),
+                React.createElement(
+                  "ul",
+                  { className: "grid gap-2 text-sm text-white/72 leading-6" },
+                  React.createElement("li", { className: "flex gap-3" }, React.createElement("span", { className: "text-sgmGold4" }, "•"), React.createElement("span", null, "Нужно КП под конкретный бюджет и автомобиль.")),
+                  React.createElement("li", { className: "flex gap-3" }, React.createElement("span", { className: "text-sgmGold4" }, "•"), React.createElement("span", null, "Нужно выбрать между физ. лицом, юр. лицом и лизингом.")),
+                  React.createElement("li", { className: "flex gap-3" }, React.createElement("span", { className: "text-sgmGold4" }, "•"), React.createElement("span", null, "Нужно объяснить клиенту аванс, НДС и финальную цену.")),
+                  React.createElement("li", { className: "flex gap-3" }, React.createElement("span", { className: "text-sgmGold4" }, "•"), React.createElement("span", null, "Нужно быстро вывести клиента на следующий шаг к сделке."))
+                )
+              )
+            )
+          )
+        ),
+
+        React.createElement(
+          "div",
+          { className: "fixed inset-x-0 bottom-3 z-50 px-3 md:px-4 pointer-events-none" },
+          React.createElement(
+            "div",
+            {
+              className: "max-w-3xl mx-auto pointer-events-auto rounded-full p-[1px]",
+              style: {
+                background: 'linear-gradient(90deg, #5F2B26 0%, #5F2B26 14%, #94532C 28%, #D09E56 45%, #FFF5E2 58%, #DCBB95 74%, #A05A1F 88%, #A05A1F 100%)',
+                boxShadow: '0 18px 46px rgba(0,0,0,.35)'
+              }
+            },
+            React.createElement(
+              "div",
+              { className: "nav-blur rounded-full border h-[72px] grid grid-cols-4 gap-1.5 p-2" },
+              outerTabs.map(tab =>
+                React.createElement(
+                  "button",
+                  {
+                    key: tab.id,
+                    onClick: () => setActiveSection(tab.id),
+                    className: `min-w-0 rounded-full transition-all flex flex-col items-center justify-center gap-1 px-1 ${
+                      activeSection === tab.id
+                        ? 'bg-white/[0.08] border border-white/10 text-white'
+                        : 'text-white/55 hover:text-white/85'
+                    }`
+                  },
+                  React.createElement("i", { className: `fa-solid ${tab.icon} text-[14px]` }),
+                  React.createElement("span", { className: "text-[10px] font-medium whitespace-nowrap" }, tab.label)
+                )
+              )
+            )
+          )
+        ),
+
+        React.createElement(
+          Modal,
+          {
+            isOpen: modalState.open,
+            onClose: closeModal,
+            title: modalState.title
+          },
+          renderModalContent()
+        )
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</body>
 </html>
