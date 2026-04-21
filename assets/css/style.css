@@ -398,3 +398,74 @@ p {
     flex-direction: column;
   }
 }
+.section-head h1,
+.section-head h2 {
+  letter-spacing: -0.03em;
+}
+
+.info-card p,
+.panel-item p,
+.cta-block p,
+.footer-inner p,
+.section-head p {
+  line-height: 1.65;
+}
+
+.info-card,
+.panel-item,
+.hero-panel,
+.cta-block {
+  transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+}
+
+.info-card:hover,
+.panel-item:hover,
+.hero-panel:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 245, 226, 0.14);
+}
+
+.card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.032) 0%, rgba(255,255,255,0.016) 100%);
+}
+
+.cta-block h2 {
+  max-width: 18ch;
+}
+
+.lead {
+  color: var(--text-soft);
+}
+
+.section-head {
+  max-width: 920px;
+}
+
+@media (max-width: 560px) {
+  .section-head {
+    gap: 14px;
+  }
+
+  .section-head p,
+  .lead,
+  .info-card p,
+  .panel-item p,
+  .cta-block p {
+    font-size: 0.98rem;
+  }
+
+  h1 {
+    font-size: clamp(2.1rem, 9vw, 3.2rem);
+    max-width: 100%;
+  }
+
+  h2 {
+    font-size: clamp(1.7rem, 7vw, 2.3rem);
+    max-width: 100%;
+  }
+
+  .info-card h3 {
+    font-size: 1.2rem;
+  }
+}
