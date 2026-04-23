@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>СГМ Автогрупп — премиальная презентация</title>
+  <meta name="description" content="Интерактивная слайд-презентация СГМ Автогрупп" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #070707;
+      --panel: rgba(255,255,255,0.035);
+      --panel-soft: rgba(255,255,255,0.02);
+      --line: rgba(255,255,255,0.08);
+      --text: #ffffff;
+      --text-soft: #d9d1c7;
+      --gold-dark: #5f2b26;
+      --gold-bronze: #94532c;
+      --gold-main: #d09e56;
+      --gold-light: #fff5e2;
+      --gold-soft: #dcbb95;
+      --gold-deep: #a05a1f;
+      --gradient-main: linear-gradient(135deg, #5F2B26 0%, #94532C 24%, #D09E56 42%, #FFF5E2 52%, #DCBB95 66%, #A05A1F 82%, #5F2B26 100%);
+      --gradient-line: linear-gradient(90deg, #5F2B26 0%, #5F2B26 14%, #94532C 28%, #D09E56 45%, #FFF5E2 58%, #DCBB95 74%, #A05A1F 88%, #A05A1F 100%);
+      --shadow: 0 24px 70px rgba(0,0,0,.46);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --container: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Jost', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 80% 0%, rgba(208,158,86,.12), transparent 22%),
+        radial-gradient(circle at 18% 14%, rgba(255,245,226,.04), transparent 18%),
+        linear-gradient(180deg, #070707 0%, #090909 52%, #070707 100%);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    .top-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-line);
+      z-index: 100;
+    }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 50;
+      padding: 14px 16px 0;
+    }
+
+    .topbar-inner {
+      width: min(calc(100% - 0px), 1200px);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(7,7,7,.76);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .counter {
+      color: var(--gold-soft);
+      font-size: .92rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+    }
+
+    .viewport {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slides {
+      display: flex;
+      width: 1500%;
+      height: 100%;
+      transition: transform .45s cubic-bezier(.22,.61,.36,1);
+    }
+
+    .slide {
+      width: calc(100% / 15);
+      height: 100%;
+      padding: 18px;
+      display: grid;
+      align-items: center;
+    }
+
+    .slide-inner {
+      width: min(100%, var(--container));
+      margin: 0 auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+      box-shadow: var(--shadow);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 28%);
+    }
+
+    .pad-xl { padding: 44px; }
+    .pad-lg { padding: 34px; }
+    .pad-md { padding: 26px; }
+
+    .eyebrow {
+      display: inline-flex;
+      margin-bottom: 16px;
+      color: var(--gold-soft);
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    h1,h2,h3,p { margin: 0; }
+    h1,h2,h3 {
+      line-height: 1.02;
+      letter-spacing: -.04em;
+    }
+
+    .title-xl {
+      font-size: clamp(2.4rem, 5vw, 5.6rem);
+      max-width: 10ch;
+      margin-bottom: 16px;
+      font-weight: 800;
+    }
+
+    .title-lg {
+      font-size: clamp(2rem, 4vw, 4rem);
+      max-width: 14ch;
+      margin-bottom: 14px;
+      font-weight: 800;
+    }
+
+    .title-md {
+      font-size: clamp(1.45rem, 2.2vw, 2.2rem);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .lead {
+      color: var(--text-soft);
+      font-size: clamp(1rem, 1.5vw, 1.18rem);
+      line-height: 1.62;
+      max-width: 48ch;
+    }
+
+    .center {
+      text-align: center;
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+    }
+
+    .big-number {
+      font-size: clamp(4.6rem, 11vw, 10rem);
+      line-height: .9;
+      font-weight: 800;
+      letter-spacing: -.06em;
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .grid-2-stack {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 18px;
+    }
+
+    .mini-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255,255,255,.08);
+      background: var(--panel-soft);
+    }
+
+    .mini-card h3 {
+      font-size: 1.08rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .mini-card p,
+    .mini-card li {
+      color: var(--text-soft);
+      font-size: .98rem;
+      line-height: 1.58;
+    }
+
+    .mini-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .quote-box {
+      border-left: 3px solid var(--gold-main);
+      padding-left: 16px;
+      color: var(--gold-light);
+      font-size: 1.08rem;
+      line-height: 1.54;
+    }
+
+    .compare-box {
+      display: grid;
+      gap: 14px;
+    }
+
+    .compare-block {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255,255,255,.08);
+      background: var(--panel-soft);
+    }
+
+    .compare-block.bad {
+      border-color: rgba(255,120,120,.16);
+      background: rgba(255,80,80,.03);
+    }
+
+    .compare-block.good {
+      border-color: rgba(255,245,226,.18);
+      background: rgba(255,245,226,.04);
+    }
+
+    .compare-block h3 {
+      font-size: 1.24rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .compare-block ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .compare-block li {
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,245,226,.14);
+      color: var(--gold-light);
+      background: rgba(255,255,255,.02);
+      font-size: .92rem;
+      font-weight: 600;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 20px;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(255,245,226,.7), rgba(255,245,226,.1));
+    }
+
+    .timeline-step {
+      position: relative;
+      display: grid;
+      gap: 8px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -24px;
+      top: 7px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--gradient-main);
+      box-shadow: 0 0 16px rgba(255,245,226,.18);
+    }
+
+    .timeline-step h3 {
+      font-size: 1.32rem;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+
+    .timeline-step p {
+      color: var(--text-soft);
+      font-size: .98rem;
+      line-height: 1.58;
+    }
+
+    .nav {
+      position: relative;
+      z-index: 60;
+      padding: 0 16px 14px;
+    }
+
+    .nav-inner {
+      width: min(calc(100% - 0px), 1200px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(7,7,7,.76);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      font-size: .98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .nav-btn:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+    }
+
+    .nav-btn.primary {
+      background: var(--gradient-main);
+      color: #141414;
+      border-color: transparent;
+    }
+
+    .progress {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 6.66%;
+      height: 100%;
+      background: var(--gradient-line);
+      transition: width .35s ease;
+    }
+
+    @media (max-width: 1080px) {
+      .grid-2,
+      .grid-2-stack,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .title-xl,
+      .title-lg {
+        max-width: 100%;
+      }
+
+      .slide-inner {
+        max-height: calc(100vh - 190px);
+        overflow: auto;
+        padding-right: 4px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar {
+        padding: 10px 10px 0;
+      }
+
+      .topbar-inner,
+      .nav-inner {
+        width: 100%;
+      }
+
+      .brand { font-size: .84rem; }
+      .counter { font-size: .82rem; }
+
+      .slide { padding: 10px; }
+      .pad-xl { padding: 24px; }
+      .pad-lg { padding: 22px; }
+      .pad-md { padding: 18px; }
+
+      .lead,
+      .mini-card p,
+      .mini-card li,
+      .timeline-step p {
+        font-size: .95rem;
+      }
+
+      .nav-btn {
+        min-height: 44px;
+        padding: 0 14px;
+        font-size: .9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-line"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">СГМ Автогрупп</div>
+        <div class="counter"><span id="currentSlide">1</span> / 15</div>
+      </div>
+    </header>
+
+    <div class="viewport">
+      <div class="slides" id="slides">
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-xl">
+              <div class="center">
+                <div class="eyebrow">СГМ АВТОГРУПП</div>
+                <h1 class="title-xl">ИСКУССТВО БЕЗУПРЕЧНОГО ИМПОРТА</h1>
+                <p class="lead">
+                  Премиальные автомобили под ключ.<br>
+                  Строго официально.<br>
+                  С полным НДС.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="grid-2">
+                <div>
+                  <div class="eyebrow">НИКАКИХ КОМПРОМИССОВ.</div>
+                  <div class="big-number">1300</div>
+                </div>
+                <div class="mini-card">
+                  <ul>
+                    <li>Мы — лицензированный мультибрендовый импортер.</li>
+                    <li>Более 1300 успешно доставленных автомобилей эксклюзивного класса.</li>
+                    <li>Прямая работа с дистрибьюторами в ОАЭ и Европе.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="grid-2">
+                <div>
+                  <div class="eyebrow">ИЛЛЮЗИЯ ВЫГОДЫ.</div>
+                  <p class="lead">
+                    90% премиальных авто в наличии ввезены по «серым» схемам через страны ЕАЭС с занижением таможенной стоимости.
+                  </p>
+                </div>
+                <div style="display:grid; gap:18px;">
+                  <div class="quote-box">
+                    Экономия сегодня — это ваш отложенный долг государству завтра.
+                  </div>
+                  <p class="lead">
+                    Риск доначисления пошлин, колоссальных штрафов и аннулирования ЭПТС.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="eyebrow">КАК ВВОЗЯТ АВТОМОБИЛИ</div>
+              <div class="compare-box">
+                <div class="compare-block bad">
+                  <h3>«СЕРЫЙ» ВВОЗ:</h3>
+                  <ul>
+                    <li>Оформление на физлицо (Риск)</li>
+                    <li>Пошлина 48% на конечного клиента</li>
+                    <li>Заниженный инвойс</li>
+                  </ul>
+                </div>
+                <div class="compare-block good">
+                  <h3>БЕЛЫЙ ВВОЗ СГМ:</h3>
+                  <ul>
+                    <li>Наше юридическое лицо (Безопасно)</li>
+                    <li>Коммерческая пошлина 10-15%</li>
+                    <li>100% белая декларация</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="center">
+                <div class="eyebrow">НДС</div>
+                <h2 class="title-lg">ПОЛНАЯ ФИНАНСОВАЯ ПРОЗРАЧНОСТЬ.</h2>
+                <p class="lead">
+                  Все автомобили проходят таможню РФ напрямую<br>
+                  на юридическое лицо с уплатой 20% НДС.
+                </p>
+                <p class="lead">
+                  Идеально для корпоративного лизинга.<br>
+                  Возврат налогов легально сохраняет ваш капитал.
+                </p>
+                <div class="pill-row">
+                  <span class="pill">Альфа-Лизинг</span>
+                  <span class="pill">ВТБ</span>
+                  <span class="pill">Газпром</span>
+                  <span class="pill">Каркаде</span>
+                  <span class="pill">Ресо</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="center">
+                <div class="eyebrow">ЭКСКЛЮЗИВНЫЕ ПОСТАВКИ: RAM 1500.</div>
+                <p class="lead">Лимитированные квоты на новые модели 2025-2026 годов.</p>
+                <p class="lead">RXO, Лимитед, Ребел.</p>
+                <p class="lead">Мы находим конфигурации, недоступные на открытом рынке.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="grid-2-stack">
+              <div class="card pad-md">
+                <div class="eyebrow">ИНДИВИДУАЛЬНЫЙ ПОДБОР.</div>
+                <h3 class="title-md">ЛОНГХОРН</h3>
+                <p class="lead">
+                  Аутентичная роскошь. Коричневая кожа высшего сорта
+                  с тиснением и уникальные вставки из дерева.
+                </p>
+              </div>
+              <div class="card pad-md">
+                <div class="eyebrow">ВЫБОР ДВИГАТЕЛЯ</div>
+                <p class="lead">
+                  Новая динамика 3.0 литра Твин-Турбо (540 л.с.) или
+                  классическая надежность 5.7 литра V8 Хеми с мягким гибридом.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="eyebrow">ЭКСПЕРТИЗА В ДЕТАЛЯХ: ОСТОРОЖНО С КОМПЛЕКТАЦИЕЙ ТАНГСТЕН.</div>
+              <div style="display:grid; gap:18px;">
+                <p class="lead">
+                  Из-за специфики грузоподъемности кабины и кузова,
+                  РАМ Тангстен классифицируется таможней как легковой транспорт.
+                </p>
+                <p class="lead">
+                  Итог: утилизационный сбор и акцизы увеличивают финальную цену на 4,5–5,5 млн рублей.
+                </p>
+                <p class="lead">
+                  Наш выбор — финансово оптимизированные коммерческие версии.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="eyebrow">ИСТИННЫЙ ПРЕМИУМ ПОД ЗАКАЗ.</div>
+              <div class="mini-card">
+                <ul>
+                  <li>Рендж Ровер (Автобиография, СВ). Европейские версии с полной заводской русификацией.</li>
+                  <li>Электромобили Мерседес-Бенц (серия И-Кью), Лотус и новые релизы В-Класс.</li>
+                  <li>Эксклюзивные корейские минивэны Хендай Стария (2.2 литра дизель, 7 и 9 мест).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="center" style="margin-bottom:22px;">
+                <div class="eyebrow">БЕЗОПАСНОСТЬ В КАЖДОМ КИЛОМЕТРЕ.</div>
+                <p class="lead">Альтернативные безопасные маршруты доставки из ОАЭ и Европы.</p>
+              </div>
+              <div class="grid-2">
+                <div class="mini-card">
+                  <p>Перевозка строго в закрытых фурах (по 2 автомобиля).</p>
+                </div>
+                <div class="mini-card">
+                  <p>Полная защита от климатических воздействий и дорожных рисков на всем пути до Самары.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="eyebrow">ВАШ ПУТЬ К АВТОМОБИЛЮ.</div>
+              <div class="timeline">
+                <div class="timeline-step">
+                  <h3>1. БРОНЬ.</h3>
+                  <p>Фиксация цены в рублях по договору. Первичный депозит.</p>
+                </div>
+                <div class="timeline-step">
+                  <h3>2. ВЫКУП.</h3>
+                  <p>Фото- и видеоотчет с завода или порта. Отправка автомобиля.</p>
+                </div>
+                <div class="timeline-step">
+                  <h3>3. ВЫДАЧА.</h3>
+                  <p>Доставка (~60 дней). Таможенная очистка. Финальный платеж и передача ключей.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="center">
+                <div class="eyebrow">АБСОЛЮТНАЯ ЧИСТОТА.</div>
+                <p class="lead">
+                  Мы выдаем полный пакет документов внешнеэкономической деятельности
+                  для постановки на учет и бухгалтерского баланса:
+                </p>
+                <div class="mini-card" style="text-align:left; width:min(100%,720px);">
+                  <ul>
+                    <li>Грузовая таможенная декларация (ГТД)</li>
+                    <li>Таможенный приходный ордер (ТПО)</li>
+                    <li>Заключение НАМИ</li>
+                    <li>Действующий ЭПТС</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="center">
+                <div class="eyebrow">ЖЕЛЕЗНЫЕ ФИНАНСОВЫЕ ГАРАНТИИ.</div>
+                <p class="lead">
+                  Цена фиксируется в рублях в момент внесения депозита.<br>
+                  Ранний аванс замораживает стоимость в валюте,
+                  защищая вас от курсовых скачков.
+                </p>
+                <p class="lead">
+                  Никаких скрытых платежей или внезапных доначислений
+                  за утильсбор по прибытии. Заявленная цена — финальная.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-lg">
+              <div class="eyebrow">ПЕРСОНАЛЬНОЕ ОБСЛУЖИВАНИЕ.</div>
+              <div class="mini-card">
+                <ul>
+                  <li>Закрепленный менеджер 24/7. Регулярные фото-уведомления о статусе транзита.</li>
+                  <li>Трейд-ин: Оценка и выкуп вашего текущего премиального автомобиля в счет сделки.</li>
+                  <li>Индивидуальное дооснащение: Установка RAM-бар, оригинальные комплекты колес 22 радиуса, оклейка кузова бронепленкой.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide">
+          <div class="slide-inner">
+            <div class="card pad-xl">
+              <div class="center">
+                <div class="eyebrow">СГМ АВТОГРУПП</div>
+                <h2 class="title-lg">ВАШ АВТОМОБИЛЬ УЖЕ В ПУТИ.</h2>
+                <p class="lead">
+                  Запросите индивидуальное коммерческое предложение
+                  на актуальные лимитированные квоты.
+                </p>
+                <a class="title-md" href="contact.html" style="display:inline-flex; padding:18px 26px; border-radius:20px; border:1px solid rgba(255,245,226,.18); background:linear-gradient(135deg, rgba(95,43,38,.35), rgba(255,245,226,.08)); box-shadow:var(--shadow);">
+                  Свяжитесь с вашим персональным менеджером.
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <footer class="nav">
+      <div class="nav-inner">
+        <button class="nav-btn" id="prevBtn">Назад</button>
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+        <button class="nav-btn primary" id="nextBtn">Далее</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const slides = document.getElementById('slides');
+    const currentSlideEl = document.getElementById('currentSlide');
+    const progressBar = document.getElementById('progressBar');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const totalSlides = 15;
+    let current = 0;
+
+    function updateSlider() {
+      slides.style.transform = `translateX(-${current * (100 / totalSlides)}%)`;
+      currentSlideEl.textContent = current + 1;
+      progressBar.style.width = `${((current + 1) / totalSlides) * 100}%`;
+
+      prevBtn.disabled = current === 0;
+      nextBtn.textContent = current === totalSlides - 1 ? 'Завершить' : 'Далее';
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (current > 0) {
+        current--;
+        updateSlider();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (current < totalSlides - 1) {
+        current++;
+        updateSlider();
+      } else {
+        window.location.href = 'contact.html';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' && current < totalSlides - 1) {
+        current++;
+        updateSlider();
+      }
+      if (e.key === 'ArrowLeft' && current > 0) {
+        current--;
+        updateSlider();
+      }
+    });
+
+    updateSlider();
+  </script>
+</body>
+</html>
