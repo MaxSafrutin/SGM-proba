@@ -3,166 +3,1033 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Как проходит сделка — SGM Auto Group</title>
-  <meta name="description" content="Понятная структура сделки по параллельному импорту автомобиля: этапы, оплаты, логистика, документы и формат покупки." />
+  <title>Структура сделки — SGM Auto Group</title>
+  <meta name="description" content="Слайдовая ветка о структуре сделки: белый ввоз, НДС, логистика, путь к автомобилю, документы и гарантии." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
-</head>
 
+  <style>
+    :root {
+      --panel-soft: rgba(255,255,255,0.02);
+      --panel-mid: rgba(255,255,255,0.035);
+      --panel-strong: rgba(255,255,255,0.05);
+      --line-strong: rgba(255,255,255,0.12);
+      --danger: rgba(255,120,120,0.16);
+      --danger-bg: rgba(255,80,80,0.03);
+      --ok-bg: rgba(255,245,226,0.04);
+      --ok-line: rgba(255,245,226,0.18);
+    }
+
+    body {
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(208,158,86,.12), transparent 22%),
+        radial-gradient(circle at 18% 14%, rgba(255,245,226,.04), transparent 18%),
+        linear-gradient(180deg, #070707 0%, #090909 52%, #070707 100%);
+    }
+
+    .deal-app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .deal-topbar {
+      position: relative;
+      z-index: 20;
+      padding: 10px 14px 0;
+    }
+
+    .deal-topbar-inner {
+      width: min(100%, var(--container));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(7, 7, 7, 0.78);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .deal-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #fff;
+      min-width: 0;
+    }
+
+    .deal-brand .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--gradient-main);
+      box-shadow: 0 0 16px rgba(208,158,86,.35);
+      flex: 0 0 auto;
+    }
+
+    .deal-top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .deal-header-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-weight: 600;
+      transition: .22s ease;
+    }
+
+    .deal-header-btn:hover,
+    .deal-nav-btn:hover:not(:disabled),
+    .deal-ghost-btn:hover,
+    .deal-gold-btn:hover,
+    .deal-link-card:hover {
+      transform: translateY(-1px);
+    }
+
+    .deal-header-btn.gold,
+    .deal-gold-btn {
+      background: var(--gradient-main);
+      color: #121212;
+      border-color: transparent;
+      box-shadow: var(--shadow-gold);
+    }
+
+    .deal-slider-wrap {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    .deal-slides {
+      display: flex;
+      width: 700%;
+      height: 100%;
+      transition: transform .45s cubic-bezier(.22,.61,.36,1);
+    }
+
+    .deal-slide {
+      width: calc(100% / 7);
+      height: 100%;
+      padding: 14px;
+      display: grid;
+      align-items: center;
+    }
+
+    .deal-slide-inner {
+      width: min(100%, var(--container));
+      margin: 0 auto;
+      max-height: calc(100vh - 170px);
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .deal-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .deal-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 28%);
+    }
+
+    .deal-pad-xl { padding: 40px; }
+    .deal-pad-lg { padding: 30px; }
+
+    .deal-kicker {
+      display: inline-flex;
+      margin-bottom: 14px;
+      color: var(--gold-soft);
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .deal-title-xl,
+    .deal-title-lg,
+    .deal-title-md {
+      margin: 0;
+      line-height: 1.02;
+      letter-spacing: -.04em;
+    }
+
+    .deal-title-xl {
+      font-size: clamp(2.3rem, 5vw, 5.3rem);
+      font-weight: 800;
+      max-width: 9.5ch;
+      margin-bottom: 16px;
+    }
+
+    .deal-title-lg {
+      font-size: clamp(1.95rem, 4vw, 3.8rem);
+      font-weight: 800;
+      max-width: 12ch;
+      margin-bottom: 14px;
+    }
+
+    .deal-title-md {
+      font-size: clamp(1.35rem, 2.4vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .deal-lead,
+    .deal-text {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.64;
+    }
+
+    .deal-lead {
+      font-size: clamp(1rem, 1.6vw, 1.18rem);
+      max-width: 48ch;
+    }
+
+    .deal-text {
+      font-size: 1rem;
+    }
+
+    .deal-center {
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .deal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .deal-gold-btn,
+    .deal-ghost-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 20px;
+      border-radius: 999px;
+      font-weight: 600;
+      transition: .22s ease;
+      border: 1px solid transparent;
+    }
+
+    .deal-ghost-btn {
+      background: rgba(255,255,255,0.03);
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .deal-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .deal-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 16px;
+    }
+
+    .deal-mini-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+    }
+
+    .deal-mini-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .deal-mini-card p,
+    .deal-mini-card li {
+      color: var(--text-soft);
+      font-size: .98rem;
+      line-height: 1.58;
+      margin: 0;
+    }
+
+    .deal-mini-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .deal-compare {
+      display: grid;
+      gap: 14px;
+    }
+
+    .deal-compare-block {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+    }
+
+    .deal-compare-block.bad {
+      border-color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .deal-compare-block.good {
+      border-color: var(--ok-line);
+      background: var(--ok-bg);
+    }
+
+    .deal-compare-block h3 {
+      margin: 0 0 12px;
+      font-size: 1.24rem;
+      font-weight: 700;
+    }
+
+    .deal-compare-block ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .deal-compare-block li {
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+
+    .deal-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .deal-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,245,226,.14);
+      background: rgba(255,255,255,0.02);
+      color: var(--gold-light);
+      font-size: .92rem;
+      font-weight: 600;
+    }
+
+    .deal-timeline {
+      display: grid;
+      gap: 20px;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .deal-timeline::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(255,245,226,.7), rgba(255,245,226,.1));
+    }
+
+    .deal-step {
+      position: relative;
+      display: grid;
+      gap: 8px;
+    }
+
+    .deal-step::before {
+      content: "";
+      position: absolute;
+      left: -24px;
+      top: 7px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--gradient-main);
+      box-shadow: 0 0 16px rgba(255,245,226,.18);
+    }
+
+    .deal-step h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .deal-step p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: .98rem;
+      line-height: 1.58;
+    }
+
+    .deal-link-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+      transition: .2s ease;
+    }
+
+    .deal-link-card strong {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .deal-link-card span {
+      color: var(--gold-light);
+      font-size: .94rem;
+    }
+
+    .deal-nav {
+      position: relative;
+      z-index: 30;
+      padding: 0 14px 14px;
+    }
+
+    .deal-nav-inner {
+      width: min(100%, var(--container));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(7,7,7,.78);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .deal-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-size: .98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .22s ease;
+    }
+
+    .deal-nav-btn.primary {
+      background: var(--gradient-main);
+      border-color: transparent;
+      color: #111;
+      box-shadow: var(--shadow-gold);
+    }
+
+    .deal-nav-btn:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+    }
+
+    .deal-progress {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .deal-progress-bar {
+      width: 14.28%;
+      height: 100%;
+      background: var(--gradient-line);
+      transition: width .35s ease;
+    }
+
+    .deal-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      background: rgba(0,0,0,.66);
+      backdrop-filter: blur(7px);
+      opacity: 0;
+      visibility: hidden;
+      transition: .22s ease;
+    }
+
+    .deal-modal-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .deal-modal {
+      width: min(760px, 100%);
+      max-height: min(86vh, 900px);
+      overflow: auto;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: rgba(10,10,10,.95);
+      box-shadow: var(--shadow-soft);
+      transform: translateY(10px) scale(.985);
+      transition: .22s ease;
+    }
+
+    .deal-modal-backdrop.show .deal-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .deal-modal-head {
+      padding: 18px 18px 0;
+    }
+
+    .deal-modal-body {
+      padding: 16px 18px 22px;
+    }
+
+    .deal-modal-title {
+      margin: 0;
+      font-size: 1.7rem;
+      font-weight: 800;
+      line-height: 1.06;
+    }
+
+    .deal-modal-body p,
+    .deal-modal-body li {
+      color: var(--text-soft);
+      line-height: 1.62;
+      font-size: 1rem;
+    }
+
+    .deal-modal-body ul {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .deal-modal-close {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    @media (max-width: 980px) {
+      .deal-grid-2,
+      .deal-grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .deal-title-xl,
+      .deal-title-lg {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .deal-topbar,
+      .deal-nav,
+      .deal-slide {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .deal-topbar-inner,
+      .deal-nav-inner {
+        width: 100%;
+      }
+
+      .deal-brand {
+        font-size: 12px;
+      }
+
+      .deal-top-actions {
+        display: none;
+      }
+
+      .deal-pad-xl { padding: 24px; }
+      .deal-pad-lg { padding: 22px; }
+
+      .deal-nav-btn {
+        min-height: 44px;
+        padding: 0 14px;
+        font-size: .9rem;
+      }
+
+      .deal-slide-inner {
+        max-height: calc(100vh - 156px);
+      }
+
+      .deal-actions {
+        flex-direction: column;
+      }
+
+      .deal-gold-btn,
+      .deal-ghost-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
 <body>
   <div class="top-gradient-line"></div>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="index.html" class="logo">SGM <span>Auto Group</span></a>
+  <div class="deal-app">
+    <header class="deal-topbar">
+      <div class="deal-topbar-inner">
+        <a href="index.html" class="deal-brand">
+          <span class="dot"></span>
+          <span>SGM Auto Group</span>
+        </a>
 
-      <nav class="main-nav">
-        <a href="deal-structure.html">Сделка</a>
-        <a href="car-selection.html">Выбор автомобиля</a>
-        <a href="buy-format.html">Формат покупки</a>
-        <a href="risks-faq.html">Вопросы</a>
-        <a href="contact.html">Контакты</a>
-      </nav>
+        <div class="deal-top-actions">
+          <a class="deal-header-btn" href="index.html">Главная</a>
+          <a class="deal-header-btn" href="buy-format.html">Формат покупки</a>
+          <a class="deal-header-btn gold" href="contact.html">Получить расчёт</a>
+        </div>
+      </div>
+    </header>
 
-      <a class="header-cta" href="contact.html">Получить расчёт</a>
+    <div class="deal-slider-wrap">
+      <div class="deal-slides" id="dealSlides">
+
+        <!-- Слайд 1 -->
+        <section class="deal-slide">
+          <div class="deal-slide-inner">
+            <div class="deal-card deal-pad-xl">
+              <div class="deal-center">
+                <div class="deal-kicker">Структура сделки</div>
+                <h1 class="deal-title-xl">Понятный маршрут покупки автомобиля</h1>
+                <p class="deal-lead">
+                  Без перегруза. Без хаоса.  
+                  Только ключевые этапы: ввоз, НДС, логистика, документы, гарантии и следующий шаг.
+                </p>
+
+                <div class="deal-actions">
+                  <button class="deal-gold-btn" type="button" data-jump="1">Открыть сценарий</button>
+                  <a class="deal-ghost-btn" href="contact.html">Получить расчёт</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Слайд 2 -->
+        <section class="deal-slide">
+          <div class="deal-slide-inner">
+            <div class="deal-card deal-pad-lg">
+              <div class="deal-kicker">Как ввозят автомобили</div>
+              <div class="deal-compare">
+                <div class="deal-compare-block bad">
+                  <h3>«СЕРЫЙ» ВВОЗ</h3>
+                  <ul>
+                    <li>Оформление на физлицо</li>
+                    <li>Пошлина 48% на конечного клиента</li>
+                    <li>Заниженный инвойс</li>
+                  </ul>
+                </div>
+
+                <div class="deal-compare-block good">
+                  <h3>БЕЛЫЙ ВВОЗ СГМ</h3>
+                  <ul>
+                    <li>Наше юридическое лицо</li>
+                    <li>Коммерческая пошлина 10–15%</li>
+                    <li>100% белая декларация</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="deal-actions">
+                <button class="deal-ghost-btn" type="button" data-modal="gray-white">Подробнее</button>
+                <a class="deal-ghost-btn" href="risks-faq.html">Вопросы</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Слайд 3 -->
+        <section class="deal-slide">
+          <div class="deal-slide-inner">
+            <div class="deal-card deal-pad-lg">
+              <div class="deal-kicker">НДС и финансовая прозрачность</div>
+              <h2 class="deal-title-lg">Полная финансовая прозрачность</h2>
+              <p class="deal-lead">
+                Все автомобили проходят таможню РФ напрямую на юридическое лицо с уплатой 20% НДС.
+              </p>
+
+              <div class="deal-pills">
+                <span class="deal-pill">Альфа-Лизинг</span>
+                <span class="deal-pill">ВТБ</span>
+                <span class="deal-pill">Газпром</span>
+                <span class="deal-pill">Каркаде</span>
+                <span class="deal-pill">Ресо</span>
+              </div>
+
+              <div class="deal-actions">
+                <button class="deal-ghost-btn" type="button" data-modal="nds">Подробнее</button>
+                <a class="deal-ghost-btn" href="buy-format.html">Формат покупки</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Слайд 4 -->
+        <section class="deal-slide">
+          <div class="deal-slide-inner">
+            <div class="deal-card deal-pad-lg">
+              <div class="deal-kicker">Безопасность в каждом километре</div>
+              <div class="deal-grid-2">
+                <div class="deal-mini-card">
+                  <h3>Маршрут</h3>
+                  <p>Альтернативные безопасные маршруты доставки из ОАЭ и Европы.</p>
+                </div>
+
+                <div class="deal-mini-card">
+                  <h3>Защита</h3>
+                  <p>Перевозка строго в закрытых фурах и полная защита от климатических и дорожных рисков.</p>
+                </div>
+              </div>
+
+              <div class="deal-actions">
+                <button class="deal-ghost-btn" type="button" data-modal="logistics">Подробнее</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Слайд 5 -->
+        <section class="deal-slide">
+          <div class="deal-slide-inner">
+            <div class="deal-card deal-pad-lg">
+              <div class="deal-kicker">Ваш путь к автомобилю</div>
+              <div class="deal-timeline">
+                <div class="deal-step">
+                  <h3>1. Бронь</h3>
+                  <p>Фиксация цены в рублях по договору. Первичный депозит.</p>
+                </div>
+
+                <div class="deal-step">
+                  <h3>2. Выкуп</h3>
+                  <p>Фото- и видеоотчет с завода или порта. Отправка автомобиля.</p>
+                </div>
+
+                <div class="deal-step">
+                  <h3>3. Выдача</h3>
+                  <p>Доставка (~60 дней), таможенная очистка, финальный платеж и передача ключей.</p>
+                </div>
+              </div>
+
+              <div class="deal-actions">
+                <button class="deal-ghost-btn" type="button" data-modal="path">Подробнее</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Слайд 6 -->
+        <section class="deal-slide">
+          <div class="deal-slide-inner">
+            <div class="deal-grid-2">
+              <div class="deal-card deal-pad-lg">
+                <div class="deal-kicker">Документы</div>
+                <div class="deal-mini-card" style="background: transparent; border: 0; padding: 0;">
+                  <ul>
+                    <li>Грузовая таможенная декларация (ГТД)</li>
+                    <li>Таможенный приходный ордер (ТПО)</li>
+                    <li>Заключение НАМИ</li>
+                    <li>Действующий ЭПТС</li>
+                  </ul>
+                </div>
+                <div class="deal-actions">
+                  <button class="deal-ghost-btn" type="button" data-modal="docs">Подробнее</button>
+                </div>
+              </div>
+
+              <div class="deal-card deal-pad-lg">
+                <div class="deal-kicker">Финансовые гарантии</div>
+                <div class="deal-mini-card" style="background: transparent; border: 0; padding: 0;">
+                  <p>
+                    Цена фиксируется в рублях в момент внесения депозита.
+                    Заявленная цена — финальная.
+                  </p>
+                </div>
+                <div class="deal-actions">
+                  <button class="deal-ghost-btn" type="button" data-modal="guarantees">Подробнее</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Слайд 7 -->
+        <section class="deal-slide">
+          <div class="deal-slide-inner">
+            <div class="deal-card deal-pad-xl">
+              <div class="deal-center">
+                <div class="deal-kicker">Следующий шаг</div>
+                <h2 class="deal-title-lg">Ваш автомобиль уже в пути</h2>
+                <p class="deal-lead">
+                  Запросите индивидуальное коммерческое предложение
+                  и получите рабочий сценарий сделки под свою задачу.
+                </p>
+
+                <div class="deal-grid-3" style="width:100%; margin-top: 8px;">
+                  <a class="deal-link-card" href="buy-format.html">
+                    <strong>Формат покупки</strong>
+                    <span>Открыть</span>
+                  </a>
+
+                  <a class="deal-link-card" href="risks-faq.html">
+                    <strong>Частые вопросы</strong>
+                    <span>Открыть</span>
+                  </a>
+
+                  <a class="deal-link-card" href="contact.html">
+                    <strong>Связаться</strong>
+                    <span>Открыть</span>
+                  </a>
+                </div>
+
+                <div class="deal-actions">
+                  <a class="deal-gold-btn" href="contact.html">Получить расчёт</a>
+                  <a class="deal-ghost-btn" href="index.html">На главную</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
     </div>
-  </header>
 
-  <main>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">Как проходит сделка</div>
-          <h1>Вы заранее понимаете весь процесс покупки</h1>
-          <p class="lead">
-            Это не история «заплатили и ждём».
-            Это последовательная сделка с понятными этапами, оплатами и контролем.
-          </p>
-        </div>
-        <div class="hero-actions" style="margin-top: 24px;">
-  <a class="btn btn-gold" href="deal-presentation.html">Открыть презентацию сделки</a>
-  <a class="btn btn-dark" href="contact.html">Получить расчёт</a>
-</div>
+    <footer class="deal-nav">
+      <div class="deal-nav-inner">
+        <button class="deal-nav-btn" id="dealPrevBtn">Назад</button>
+        <div class="deal-progress"><div class="deal-progress-bar" id="dealProgressBar"></div></div>
+        <button class="deal-nav-btn primary" id="dealNextBtn">Далее</button>
       </div>
-    </section>
+    </footer>
+  </div>
 
-    <section class="section">
-      <div class="container">
-        <div class="card-grid three-up">
-
-          <div class="card info-card">
-            <div class="card-step">01</div>
-            <h3>Подбор автомобиля</h3>
-            <p>Фиксируем модель, бюджет и конкретный вариант с рынка.</p>
-          </div>
-
-          <div class="card info-card">
-            <div class="card-step">02</div>
-            <h3>Фиксация цены</h3>
-            <p>Бронируем автомобиль и фиксируем условия сделки.</p>
-          </div>
-
-          <div class="card info-card">
-            <div class="card-step">03</div>
-            <h3>Оплата и выкуп</h3>
-            <p>После подтверждения происходит выкуп автомобиля.</p>
-          </div>
-
-          <div class="card info-card">
-            <div class="card-step">04</div>
-            <h3>Логистика</h3>
-            <p>Автомобиль движется по понятному маршруту с контролем.</p>
-          </div>
-
-          <div class="card info-card">
-            <div class="card-step">05</div>
-            <h3>Таможня и документы</h3>
-            <p>Оформление, ЭПТС и подготовка полного пакета документов.</p>
-          </div>
-
-          <div class="card info-card">
-            <div class="card-step">06</div>
-            <h3>Передача автомобиля</h3>
-            <p>Клиент получает автомобиль и завершённую сделку.</p>
-          </div>
-
+  <div class="deal-modal-backdrop" id="dealModalBackdrop" aria-hidden="true">
+    <div class="deal-modal" role="dialog" aria-modal="true">
+      <div class="deal-modal-head">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <h3 class="deal-modal-title" id="dealModalTitle">Заголовок</h3>
+          <button class="deal-modal-close" id="dealModalClose" aria-label="Закрыть окно">✕</button>
         </div>
       </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">Главное отличие</div>
-          <h2>Вы платите не «в никуда», а за конкретный этап</h2>
-        </div>
-
-        <div class="card-grid three-up">
-
-          <div class="card info-card">
-            <h3>Прозрачные этапы</h3>
-            <p>Каждый платёж привязан к конкретному действию.</p>
-          </div>
-
-          <div class="card info-card">
-            <h3>Контроль сделки</h3>
-            <p>Вы понимаете, где находится автомобиль.</p>
-          </div>
-
-          <div class="card info-card">
-            <h3>Юридическая логика</h3>
-            <p>Сделка оформлена документально и защищена.</p>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="card cta-block cta-premium">
-          <div>
-            <div class="eyebrow">Суть</div>
-            <h2>Это не покупка «вслепую», а управляемый процесс</h2>
-            <p>
-              Вы заранее понимаете:
-              сколько стоит автомобиль,
-              когда и за что платите,
-              и как он до вас доедет.
-            </p>
-          </div>
-
-          <div class="cta-actions">
-            <a class="btn btn-gold" href="contact.html">Получить расчёт</a>
-            <a class="btn btn-dark" href="car-selection.html">Выбрать автомобиль</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <div>
-        <div class="footer-brand">SGM Auto Group</div>
-        <p>Параллельный импорт. Понятная структура сделки. Контроль логистики.</p>
-      </div>
-      <div class="footer-links">
-        <a href="deal-structure.html">Сделка</a>
-        <a href="car-selection.html">Выбор автомобиля</a>
-        <a href="buy-format.html">Формат покупки</a>
-        <a href="contact.html">Контакты</a>
-      </div>
+      <div class="deal-modal-body" id="dealModalContent"></div>
     </div>
-  </footer>
+  </div>
 
-  <script src="assets/js/app.js"></script>
+  <script>
+    const dealSlides = document.getElementById('dealSlides');
+    const dealPrevBtn = document.getElementById('dealPrevBtn');
+    const dealNextBtn = document.getElementById('dealNextBtn');
+    const dealProgressBar = document.getElementById('dealProgressBar');
+
+    const totalDealSlides = 7;
+    let dealCurrent = 0;
+
+    function updateDealSlider() {
+      dealSlides.style.transform = `translateX(-${dealCurrent * (100 / totalDealSlides)}%)`;
+      dealProgressBar.style.width = `${((dealCurrent + 1) / totalDealSlides) * 100}%`;
+
+      dealPrevBtn.disabled = dealCurrent === 0;
+      dealNextBtn.textContent = dealCurrent === totalDealSlides - 1 ? 'К контакту' : 'Далее';
+    }
+
+    dealPrevBtn.addEventListener('click', () => {
+      if (dealCurrent > 0) {
+        dealCurrent--;
+        updateDealSlider();
+      }
+    });
+
+    dealNextBtn.addEventListener('click', () => {
+      if (dealCurrent < totalDealSlides - 1) {
+        dealCurrent++;
+        updateDealSlider();
+      } else {
+        window.location.href = 'contact.html';
+      }
+    });
+
+    document.querySelectorAll('[data-jump]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        dealCurrent = Number(btn.dataset.jump);
+        updateDealSlider();
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' && dealCurrent < totalDealSlides - 1) {
+        dealCurrent++;
+        updateDealSlider();
+      }
+      if (e.key === 'ArrowLeft' && dealCurrent > 0) {
+        dealCurrent--;
+        updateDealSlider();
+      }
+    });
+
+    const modalData = {
+      "gray-white": {
+        title: "Белый и серый ввоз",
+        html: `
+          <p>Серые схемы обычно выглядят дешевле на старте, но именно там чаще возникает риск доначислений, штрафов и проблем с ЭПТС.</p>
+          <ul>
+            <li>оформление на физлицо вместо прозрачного коммерческого контура;</li>
+            <li>заниженный инвойс и слабая юридическая конструкция;</li>
+            <li>риск скрытых финансовых последствий после покупки.</li>
+          </ul>
+          <p>Белый ввоз строится на понятной юридической модели, коммерческой пошлине и официальной декларации.</p>
+        `
+      },
+      "nds": {
+        title: "НДС и прозрачность",
+        html: `
+          <p>Автомобили проходят таможню РФ напрямую на юридическое лицо с уплатой 20% НДС.</p>
+          <ul>
+            <li>это даёт прозрачность финансового контура;</li>
+            <li>подходит для корпоративной покупки и лизинга;</li>
+            <li>позволяет выстраивать сделку как нормальный бизнес-процесс.</li>
+          </ul>
+        `
+      },
+      "logistics": {
+        title: "Логистика и безопасность",
+        html: `
+          <p>Смысл не просто в доставке автомобиля, а в безопасном и объяснимом маршруте.</p>
+          <ul>
+            <li>закрытые фуры;</li>
+            <li>защита от климатических и дорожных рисков;</li>
+            <li>контроль статуса на всём пути до клиента.</li>
+          </ul>
+        `
+      },
+      "path": {
+        title: "Путь к автомобилю",
+        html: `
+          <p>Маршрут построен так, чтобы клиент понимал, за что платит и что происходит дальше.</p>
+          <ul>
+            <li>бронь — фиксация цены и старт сделки;</li>
+            <li>выкуп — фото- и видеоотчёт, отправка автомобиля;</li>
+            <li>выдача — доставка, таможня, финальный платёж и передача.</li>
+          </ul>
+        `
+      },
+      "docs": {
+        title: "Документы",
+        html: `
+          <p>На выходе клиент получает не только автомобиль, но и полноценный комплект документов для учёта и использования.</p>
+          <ul>
+            <li>ГТД;</li>
+            <li>ТПО;</li>
+            <li>заключение НАМИ;</li>
+            <li>действующий ЭПТС.</li>
+          </ul>
+        `
+      },
+      "guarantees": {
+        title: "Финансовые гарантии",
+        html: `
+          <p>Цена фиксируется в рублях в момент внесения депозита. Это снижает риск курсовых скачков и убирает хаос из сделки.</p>
+          <ul>
+            <li>заявленная цена воспринимается как финальная;</li>
+            <li>без скрытых платежей и внезапных доначислений;</li>
+            <li>клиенту проще принимать решение, когда он понимает весь контур заранее.</li>
+          </ul>
+        `
+      }
+    };
+
+    const dealModalBackdrop = document.getElementById('dealModalBackdrop');
+    const dealModalTitle = document.getElementById('dealModalTitle');
+    const dealModalContent = document.getElementById('dealModalContent');
+    const dealModalClose = document.getElementById('dealModalClose');
+
+    function openDealModal(title, html) {
+      dealModalTitle.textContent = title;
+      dealModalContent.innerHTML = html;
+      dealModalBackdrop.classList.add('show');
+      dealModalBackdrop.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDealModal() {
+      dealModalBackdrop.classList.remove('show');
+      dealModalBackdrop.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+
+    document.querySelectorAll('[data-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.modal;
+        const data = modalData[key];
+        if (data) openDealModal(data.title, data.html);
+      });
+    });
+
+    dealModalClose.addEventListener('click', closeDealModal);
+    dealModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === dealModalBackdrop) closeDealModal();
+    });
+
+    updateDealSlider();
+  </script>
 </body>
 </html>
